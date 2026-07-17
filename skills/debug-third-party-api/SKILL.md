@@ -1,0 +1,80 @@
+---
+name: debug-third-party-api
+description: Validate third-party API documentation against safe, real test-environment behavior and produce a consistent single-file HTML evidence report. Use when Codex must extract a documentation URL, executable test environment, interface scope, and optional scenarios; inspect official contracts; call in-scope APIs; compare documented and observed behavior; explain cross-interface flows; or report ambiguities, errors, signing, encryption, supported institutions, regions, and external questions.
+---
+
+# Third-Party API Debug
+
+Produce a trustworthy implementation contract, not a document summary.
+
+## Required inputs
+
+Extract four elements before testing:
+
+1. Official third-party documentation location.
+2. Executable test-environment information.
+3. Interface scope for this run.
+4. Requested test scenarios, when supplied.
+
+Normalize them using [input-contract.md](references/input-contract.md). Ask only for missing information that blocks a meaningful or safe result. Never persist credential values; retain references such as `ENV:CLIENT_SECRET`.
+
+When a documentation link is on Yuque, fetch it with `scripts/yuque_doc.py read <url> --output <temporary.md> --meta-output <temporary.json>` and extract the four inputs from the saved Markdown. Use `pull` only when adjacent knowledge-base documents are relevant. Use `update` only when the user explicitly asks to write back to Yuque.
+
+## Required outcomes
+
+- Establish the documented contract for every in-scope interface.
+- Capture safe, real request and response evidence where execution is possible.
+- Correct documented fields in place and label every correction with evidence.
+- Preserve protocol literals exactly, including field casing, headers, enums, and event names.
+- Explain authentication, signing, encryption, errors, support scope, limitations, and external questions.
+- Where signing, verification, encryption, or decryption applies, separate the official algorithm contract, executable local code verification, and real provider interoperability. Never treat a local round trip as proof of provider compatibility.
+- Prioritize probes for critical request fields in financial APIs. Cover, at minimum: amount minimum/maximum, unit, and format; phone-number format and supported countries; account-number format; and account-name format. Extend this set when other fields can materially affect transaction validity or routing.
+- Treat date/time fields as precision-sensitive. Verify the exact format and timezone; for timestamps, verify number vs string and seconds vs milliseconds.
+- Show useful cross-interface scenarios and data flow without claiming unobserved behavior.
+- Produce one self-contained HTML report with one tab per interface.
+
+Use [evidence-model.md](references/evidence-model.md) as the report-data contract and [test-strategy.md](references/test-strategy.md) to choose tests.
+
+## Judgment
+
+Prefer official machine-readable sources, then official prose. Treat documentation as a hypothesis and runtime evidence as observation.
+
+Choose tools and probes appropriate to the provider. Do not force a universal HTTP runner or fixed test sequence. Minimize external side effects while covering material risks.
+
+Infer interface relationships from produced and consumed values such as tokens, resource IDs, references, statuses, and webhook events. Add scenario tests when they materially explain the integration.
+
+Do not mutate production. Execute test writes only when the environment is demonstrably non-production and the user's debug request authorizes them. Record every created resource or external side effect.
+
+## Context discipline
+
+Keep raw pages, requests, responses, and headers in temporary evidence files. Bring only the active interface contract, current scenario, redacted observation, and unresolved differences into context. Preserve evidence IDs and paths so the final report remains traceable.
+
+Redact credentials, authorization values, private keys, signatures, personal data, and signed download URLs before displaying tool output or building report data.
+
+## Report contract
+
+Build a JSON result conforming to [evidence-model.md](references/evidence-model.md). Render it with:
+
+```bash
+python3 scripts/render_report.py run.json report.html
+python3 scripts/validate_report.py run.json report.html
+```
+
+Use only these verdict terms:
+
+- `PASS` — observation matches the claimed contract.
+- `DOCUMENT_MISMATCH` — observation contradicts documentation or the requirement.
+- `OBSERVED` — useful behavior without a reliable documented expectation.
+- `BLOCKED` — missing external condition prevents execution.
+- `NOT_APPLICABLE` — the dimension does not apply.
+- `NOT_EXECUTED` — intentionally not run.
+
+The renderer and validator hard-gate required interface structure, report sections, requested-scenario coverage, verdict validity, financial probe dimensions, external-question priority, and secret hygiene.
+
+Review the parts that still require judgment:
+
+- every executed claim points to evidence;
+- scenario steps show inputs, outputs, dependencies, side effects, an explicit verdict, and evidence; blocked flows identify the exact blocking step and leave downstream steps visible as not executed; scenario notes add only information not already shown by progress or steps;
+- corrections distinguish documented, observed, and recommended behavior;
+- terminology is consistent and protocol literals are unchanged;
+- limitations, side effects, and external questions are accurate and explicit.

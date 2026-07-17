@@ -1,0 +1,4 @@
+interface:
+  display_name: "Third-Party API Debug"
+  short_description: "Validate third-party APIs with evidence reports"
+  default_prompt: "Use $debug-third-party-api to validate this third-party API and produce a consistent evidence report."
