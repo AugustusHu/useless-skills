@@ -4,113 +4,132 @@
 
 ## 如何使用
 
-### 安装
+### 本地安装
 
 把以下提示交给 Codex：
 
 ```text
-使用 $skill-installer 安装：
+使用 $skill-installer，把这个 Skill 安装到当前项目的
+.agents/skills/debug-third-party-api：
 https://github.com/AugustusHu/useless-skills/tree/main/skills/debug-third-party-api
-
-如果默认下载遇到 SSL 证书错误，改用安装器的 Git 模式；
-不要关闭 TLS 校验。
 ```
 
-Skill 默认安装到 `~/.codex/skills/debug-third-party-api`，从下一轮对话开始可用；未出现时重启 Codex。
+本地安装只对当前项目生效。
+
+### 全局安装
+
+```text
+使用 $skill-installer，全局安装这个 Skill：
+https://github.com/AugustusHu/useless-skills/tree/main/skills/debug-third-party-api
+```
+
+全局安装对所有项目生效。安装后从下一轮对话开始可用；未出现时重启 Codex。
+
+也可以直接复制目录：
+
+```text
+本地：<项目根目录>/.agents/skills/debug-third-party-api/
+全局：~/.codex/skills/debug-third-party-api/
+```
+
+目录结构见文末；`SKILL.md` 必须直接位于 `debug-third-party-api` 目录中。
+
+安装或更新时若默认下载遇到 SSL 证书错误，改用安装器的 Git 模式，不要关闭 TLS 校验。
 
 ### 运行条件
 
 - Codex 桌面端、CLI 或 IDE 扩展。
-- Python 3.10+；无需安装 Python 第三方包，也不依赖 Node.js、Java、数据库或本地 Web 服务。
-- 能访问第三方文档和测试环境的网络。
-- 真实调试所需的测试地址、凭据和测试数据。
-- 测试回调时需要可接收回调的地址；读取语雀私有文档时需要 `YUQUE_TOKEN`。
-
-供应商专用 SDK 或额外密码学依赖不属于固定环境。确有需要时，由 Codex 说明用途并申请安装。
+- Python 3.10+。
+- 读取语雀私有文档时需要 `YUQUE_TOKEN`。
+- 测试回调时需要可接收回调的地址。
+- 供应商指定 SDK 或密码学算法时需要相应依赖。
 
 ### 发起调试
 
-提供四项信息：
-
-1. 第三方文档地址。
-2. 测试环境信息。
-3. 本次接口范围。
-4. 测试场景，可选。
+读取本地需求文件：
 
 ```text
-使用 $debug-third-party-api：
-
-- 文档：<文档地址>
-- 测试环境：<Sandbox 地址和凭据位置>
-- 接口范围：<接口列表>
-- 测试场景：<可选>
+使用 $debug-third-party-api，读取这个本地需求文件并执行调试：
+<需求文件绝对路径>
 ```
 
-如果这些信息已经写在语雀文档中，直接提供文档链接即可。测试凭据应放在环境变量或安全文件中，不要写入需求文档。
+读取在线需求文档：
+
+```text
+使用 $debug-third-party-api，读取这个链接并执行调试：
+<需求文档链接>
+```
 
 ### 配置语雀 Token
 
-只有读取语雀私有文档时需要。脚本优先读取环境变量 `YUQUE_TOKEN`。
-
-macOS / Linux 当前终端：
+macOS / Linux 当前会话：
 
 ```bash
+# 添加
 export YUQUE_TOKEN='<your-token>'
+
+# 删除
+unset YUQUE_TOKEN
 ```
 
-需要长期生效时，把同一行加入 `~/.zshrc`、`~/.bashrc` 或 `~/.bash_profile`。
-
-从访达或 Dock 启动 Codex 桌面端时：
+用户根目录持久化（zsh）：
 
 ```bash
-launchctl setenv YUQUE_TOKEN '<your-token>'
+# 添加
+echo "export YUQUE_TOKEN='<your-token>'" >> ~/.zshrc
+source ~/.zshrc
+
+# 删除
+sed -i.bak '/^export YUQUE_TOKEN=/d' ~/.zshrc
+rm ~/.zshrc.bak
+unset YUQUE_TOKEN
 ```
 
-设置后完全退出并重新打开 Codex；清除时执行 `launchctl unsetenv YUQUE_TOKEN`。
+使用 bash 时，将 `~/.zshrc` 换成 `~/.bashrc`。
 
-Windows PowerShell 当前窗口：
-
-```powershell
-$env:YUQUE_TOKEN = '<your-token>'
-```
-
-Windows 当前用户长期生效：
-
-```powershell
-[Environment]::SetEnvironmentVariable('YUQUE_TOKEN', '<your-token>', 'User')
-```
-
-检查是否生效，不会打印 Token（Windows 通常使用 `python`，macOS / Linux 通常使用 `python3`）：
-
-```bash
-python3 -c "import os; print('已设置' if os.getenv('YUQUE_TOKEN') else '未设置')"
-```
-
-也可以填写 `scripts/yuque_doc.py` 中的 Token 占位符，但更新会覆盖该值。公开仓库必须保留占位符，不能提交真实 Token。
+配置后重启 Codex。不要把真实 Token 写入公开仓库。
 
 ## 如何更新
 
-把以下提示交给 Codex：
+更新本地安装：
 
 ```text
-更新 debug-third-party-api：
+更新当前项目的 debug-third-party-api：
+https://github.com/AugustusHu/useless-skills/tree/main/skills/debug-third-party-api
+
+用 GitHub main 的最新版本替换
+<项目根目录>/.agents/skills/debug-third-party-api，不要修改其他 Skill。
+```
+
+更新全局安装：
+
+```text
+更新全局 debug-third-party-api：
 https://github.com/AugustusHu/useless-skills/tree/main/skills/debug-third-party-api
 
 用 GitHub main 的最新版本替换
 ~/.codex/skills/debug-third-party-api，不要修改其他 Skill。
-如果默认下载遇到 SSL 证书错误，改用 Git 模式；不要关闭 TLS 校验。
 ```
 
-更新从下一轮对话开始生效；未生效时重启 Codex。
+GitHub `main` 是发布源。更新后从下一轮对话开始生效；未出现时重启 Codex。
 
-维护者以 GitHub `main` 为发布源：
+## 如何卸载
 
-- `SKILL.md`：调试原则和报告要求。
-- `references/`：输入、测试和报告规则。
-- `assets/report-template.html`：报告样式。
-- `scripts/`：报告生成、检查和语雀工具。
+卸载本地安装：
 
-发布前用脱敏数据重新生成报告，检查页面、内容和敏感信息处理。
+```text
+卸载当前项目的 debug-third-party-api，只删除：
+<项目根目录>/.agents/skills/debug-third-party-api
+```
+
+卸载全局安装：
+
+```text
+卸载全局 debug-third-party-api，只删除：
+~/.codex/skills/debug-third-party-api
+```
+
+手动卸载时，删除对应目录即可。卸载后重新开启任务；仍然出现时重启 Codex。
 
 ## Skill 能力
 
