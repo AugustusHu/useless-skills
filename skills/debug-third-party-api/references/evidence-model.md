@@ -57,6 +57,7 @@ Use the same keys for request and response rows:
   "field": "customerReference",
   "type": "string",
   "required": true,
+  "verdict": "PASS",
   "criticalFieldCategory": null,
   "probeDimensions": [],
   "documented": "Official claim",
@@ -67,6 +68,12 @@ Use the same keys for request and response rows:
 }
 ```
 
+Every request field, response field, and error-code row must have an explicit
+`verdict`. Use `NOT_EXECUTED` for a documented row that was not tested and
+`BLOCKED` only when an external condition specifically prevents that row's
+probe. Only `DOCUMENT_MISMATCH` means that the documented value is replaced in
+the report.
+
 For financial request fields, set `criticalFieldCategory` to `AMOUNT`, `PHONE`, `ACCOUNT_NUMBER`, or `ACCOUNT_NAME`, and list the tested constraints in `probeDimensions`.
 
 - `AMOUNT` includes at least `minimum`, `maximum`, `unit`, and `format`.
@@ -74,6 +81,20 @@ For financial request fields, set `criticalFieldCategory` to `AMOUNT`, `PHONE`, 
 - `ACCOUNT_NUMBER` and `ACCOUNT_NAME` include at least `format`.
 
 Keep the results in the same request-field row. Use `documented`, `observed`, `correction`, and `evidenceIds` to summarize the independently executed probes. Unsafe or externally blocked dimensions remain explicit in `observed`; do not create a separate financial-field report section.
+
+## Error-code rows
+
+```json
+{
+  "code": "409 / duplicate reference",
+  "verdict": "DOCUMENT_MISMATCH",
+  "documented": "409 Conflict",
+  "observed": "200 with a new resource ID",
+  "correction": "Do not rely on provider-side idempotency",
+  "evidenceIds": ["E-020"],
+  "notes": []
+}
+```
 
 ## Case records
 

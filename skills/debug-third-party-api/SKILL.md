@@ -74,6 +74,7 @@ The renderer and validator hard-gate required interface structure, report sectio
 Review the parts that still require judgment:
 
 - every executed claim points to evidence;
+- every request-field, response-field, and error-code row has an explicit verdict; use `DOCUMENT_MISMATCH` only for an actual contradiction;
 - scenario steps show inputs, outputs, dependencies, side effects, an explicit verdict, and evidence; blocked flows identify the exact blocking step and leave downstream steps visible as not executed; scenario notes add only information not already shown by progress or steps;
 - corrections distinguish documented, observed, and recommended behavior;
 - terminology is consistent and protocol literals are unchanged;

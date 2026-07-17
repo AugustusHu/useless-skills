@@ -5,32 +5,638 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>__REPORT_TITLE__</title>
   <style>
-    :root{--ink:#172033;--muted:#667085;--line:#dfe3ea;--paper:#fff;--soft:#f5f7fa;--nav:#111a2b;--blue:#2563eb;--blue-soft:#eff5ff;--green:#087a55;--green-soft:#eaf8f2;--amber:#9a5b00;--amber-soft:#fff8e8;--red:#b42318;--red-soft:#fff1f0;--violet:#6941c6;--status-pass-fg:#356b59;--status-pass-bg:#edf6f2;--status-pass-border:#cfe6dc;--status-mismatch-fg:#8f3f39;--status-mismatch-bg:#f9edeb;--status-mismatch-border:#eccfcb;--status-observed-fg:#415f83;--status-observed-bg:#edf2f8;--status-observed-border:#d5e0ed;--status-blocked-fg:#805716;--status-blocked-bg:#faf4e8;--status-blocked-border:#ead9b8;--status-neutral-fg:#596273;--status-neutral-bg:#f0f2f5;--status-neutral-border:#d9dee6}
-    *{box-sizing:border-box}
-    body{margin:0;background:#eef1f5;color:var(--ink);font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
-    .shell{max-width:1480px;margin:auto;min-height:100vh;background:var(--paper);box-shadow:0 0 36px #24334a17}
-    header{padding:34px 42px;background:linear-gradient(120deg,#111a2d,#1d4078);color:#fff}
-    h1{margin:6px 0;font-size:32px}.eyebrow{color:#b9cefa;font-size:12px;letter-spacing:.14em}.subtitle{color:#d4def0;max-width:980px}
-    .stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}.stat{min-width:135px;padding:10px 14px;border:1px solid #ffffff2b;border-radius:9px;background:#ffffff0d}.stat b{display:block;font-size:20px}.stat span{color:#c9d4e6;font-size:12px}
-    .tabs{position:sticky;top:0;z-index:4;display:flex;overflow:auto;background:var(--nav);padding:0 24px}.tab{border:0;border-bottom:3px solid transparent;background:transparent;color:#aeb9cb;padding:14px 16px;font-weight:700;white-space:nowrap;cursor:pointer}.tab.active{color:#fff;border-bottom-color:#7ba8ff;background:#ffffff0b}
-    main{padding:28px 38px 60px}.panel{display:none}.panel.active{display:block}.lead{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:18px}.lead h2{margin:0;font-size:26px}.lead p{margin:3px 0;color:var(--muted)}
-    section{margin:24px 0}section>h3{font-size:18px;border-bottom:1px solid var(--line);padding-bottom:7px}
-    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
-    .card{border:1px solid var(--line);border-radius:9px;padding:15px;background:#fff}.card.wide{grid-column:1/-1}.card h4{margin:0 0 8px;font-size:15px}.label{font-size:11px;text-transform:uppercase;color:var(--muted);letter-spacing:.05em}
-    .badge{display:inline-flex;align-items:center;border:1px solid transparent;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:800;line-height:1.35;white-space:nowrap}.badge.PASS,.badge.COMPLETE{color:var(--status-pass-fg);background:var(--status-pass-bg);border-color:var(--status-pass-border)}.badge.DOCUMENT_MISMATCH{color:var(--status-mismatch-fg);background:var(--status-mismatch-bg);border-color:var(--status-mismatch-border)}.badge.OBSERVED{color:var(--status-observed-fg);background:var(--status-observed-bg);border-color:var(--status-observed-border)}.badge.BLOCKED,.badge.COMPLETE_WITH_LIMITATIONS{color:var(--status-blocked-fg);background:var(--status-blocked-bg);border-color:var(--status-blocked-border)}.badge.NOT_APPLICABLE{color:var(--status-neutral-fg);background:var(--status-neutral-bg);border-color:var(--status-neutral-border)}.badge.NOT_EXECUTED,.badge.INCOMPLETE{color:var(--status-neutral-fg);background:#fff;border-color:var(--status-neutral-border);border-style:dashed}
-    .chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}.chip{display:inline-flex;align-items:center;gap:5px;border:1px solid #d8dee8;border-radius:999px;padding:3px 8px;background:#f8fafc;color:#475467;font-size:12px}.chip code{padding:0;background:none}
-    .kv{display:grid;gap:7px}.kv-row{display:grid;grid-template-columns:minmax(105px,34%) 1fr;gap:10px;padding-bottom:6px;border-bottom:1px dashed #e5e9ef}.kv-row:last-child{border:0;padding-bottom:0}.kv-key{color:var(--muted);font-size:12px}.kv-value{min-width:0;overflow-wrap:anywhere}
-    .compact-list{margin:6px 0 0;padding-left:19px}.compact-list li{margin:5px 0}.question-groups{display:grid;gap:11px}.question-group+.question-group{padding-top:10px;border-top:1px solid var(--line)}.question-head{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}.priority-badge{display:inline-flex;border-radius:999px;padding:2px 7px;font-size:11px;font-weight:800}.priority-badge.P0{color:#87413b;background:#f7ecea}.priority-badge.P1{color:#76551f;background:#f8f2e6}.priority-badge.P2{color:#596273;background:#edf0f4}.question-list{margin:5px 0 0;padding-left:19px}.question-list li{margin:5px 0}.doc-links{display:grid;gap:6px}.doc-links a{color:var(--blue);text-decoration:none;overflow-wrap:anywhere}.doc-links a:hover{text-decoration:underline}
-    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:9px}table{width:100%;border-collapse:collapse}th,td{text-align:left;vertical-align:top;padding:9px 11px;border-bottom:1px solid var(--line)}th{background:var(--soft);font-size:11px;text-transform:uppercase;color:#536074}tr:last-child td{border:0}tr.mismatch-row{background:linear-gradient(90deg,#fff9f8,#fff 24%)}td.field-name{font-weight:700;white-space:nowrap}
-    .doc-old{color:var(--red);text-decoration-color:#d92d20;text-decoration-thickness:1.5px}.observed-new{color:#174ea6;background:var(--blue-soft);border-radius:5px;padding:3px 6px;display:inline-block}.correction-new{color:var(--green);background:var(--green-soft);border-radius:5px;padding:3px 6px;text-decoration:none;display:inline-block;font-weight:650}.evidence{color:#596780;font:11px/1.5 "SFMono-Regular",Consolas,monospace}
-    code{background:#f2f4f7;border-radius:4px;padding:1px 4px}pre{margin:0;padding:11px;border-radius:7px;background:#101722;color:#dbe6f5;font:12px/1.5 "SFMono-Regular",Consolas,monospace;white-space:pre-wrap;word-break:break-word;max-height:520px;overflow:auto}
-    details{border:1px solid var(--line);border-radius:8px;margin:9px 0;overflow:hidden}summary{display:flex;align-items:center;gap:9px;padding:10px 12px;background:#fafbfd;cursor:pointer;font-weight:700}.grow{flex:1}.detail{padding:12px}.case-meta{display:flex;flex-wrap:wrap;gap:7px;align-items:center;color:var(--muted);font-size:12px}.http-status{font-weight:800;color:var(--blue)}.raw-block{margin-top:14px}.raw-pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.raw-message{min-width:0;margin-top:12px}.raw-title{margin:0 0 5px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
-    .empty{padding:14px;border:1px dashed #cfd5df;border-radius:8px;color:var(--muted)}.finding{border-left:4px solid var(--amber);padding:13px 14px;background:var(--amber-soft);margin:9px 0;border-radius:0 8px 8px 0}.finding.P0,.finding.P1{border-left-color:var(--red);background:var(--red-soft)}.finding-head{display:flex;gap:8px;align-items:center;margin-bottom:8px}.diff-line{display:grid;grid-template-columns:90px 1fr;gap:9px;margin:5px 0}.diff-label{color:var(--muted);font-size:12px}
-    .crypto-card{padding:0;overflow:hidden}.crypto-card>h4{margin:0;padding:12px 14px;border-bottom:1px solid var(--line);background:#fafbfd}.crypto-section{padding:11px 14px}.crypto-section+.crypto-section{border-top:1px solid var(--line)}.crypto-section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.crypto-section-title h5{margin:0;font-size:13px}.crypto-grid{display:grid;grid-template-columns:1.12fr 1fr 1fr;gap:9px}.crypto-pane{min-width:0;padding:10px;border:1px solid #e1e5eb;border-radius:7px;background:#fff}.crypto-pane-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}.crypto-pane-head strong{font-size:12px}.crypto-pane .kv{gap:5px}.crypto-pane .kv-row{grid-template-columns:minmax(84px,32%) 1fr;padding-bottom:4px}.crypto-observed{margin-top:6px;color:#344054}.crypto-code{margin:8px 0 0}.crypto-code summary{padding:7px 9px;font-size:12px}.crypto-code pre{border-radius:0;max-height:280px}.crypto-evidence{margin-top:7px}.crypto-evidence .chip{padding:2px 6px;font-size:11px}
-    .scenario-name-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 22px;max-height:210px;overflow:auto;margin:0;padding:0 4px 0 20px}.scenario-name-list li{padding:2px 0;overflow-wrap:anywhere}.scenario-note{margin:10px 0;padding:9px 11px;border-left:3px solid #98a2b3;background:#fafbfc;color:#475467}.scenario-progress{display:grid;grid-template-columns:auto 1fr;gap:8px 11px;align-items:center;margin:12px 0;padding:10px 12px;border:1px solid #d8dee7;border-radius:8px;background:#fafbfc;color:var(--ink)}.scenario-progress.BLOCKED{box-shadow:inset 3px 0 #c59a55}.scenario-progress.DOCUMENT_MISMATCH{box-shadow:inset 3px 0 #c87d76}.scenario-progress.OBSERVED{box-shadow:inset 3px 0 #7f9bb8}.scenario-progress.PASS{box-shadow:inset 3px 0 #7ca895}.scenario-progress.NOT_EXECUTED{color:#596273}.progress-copy{font-weight:650}.progress-meter{grid-column:1/-1;height:4px;overflow:hidden;border-radius:99px;background:#e3e7ed}.progress-meter span,.scenario-progress.BLOCKED .progress-meter span{display:block;height:100%;border-radius:inherit;background:#8291a8}.steps{display:flex;gap:7px;align-items:flex-start;overflow-x:auto;scrollbar-color:#cbd2dc transparent;padding:2px 2px 9px}.step{flex:0 0 232px;position:relative;border:1px solid #dce1e8;border-radius:8px;padding:10px 11px;background:#fff;box-shadow:0 1px 2px #17203308}.step.completed{border-color:#d8dee6}.step.blocked{border-color:var(--status-blocked-border);box-shadow:inset 3px 0 #c59a55}.step.pending{border-style:dashed;background:#fbfcfd;color:#687183;box-shadow:none}.step-head{display:flex;gap:7px;align-items:flex-start;justify-content:space-between}.step-head strong{font-size:14px;line-height:1.35}.step-interface{margin:2px 0 7px;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em}.step-io{display:grid}.step-zone{display:grid;grid-template-columns:34px minmax(0,1fr);gap:5px;min-width:0;padding:4px 0;border:0;background:transparent}.step-zone+.step-zone{border-top:1px dashed #e5e9ef}.field-list{display:flex;flex-wrap:wrap;gap:2px 10px;min-width:0}.field-item{color:#344054;font:12px/1.35 "SFMono-Regular",Consolas,monospace;overflow-wrap:anywhere;word-break:break-word}.field-empty{color:#98a2b3;font-size:12px}.step-outcome{margin-top:5px;padding-top:6px;border-top:1px solid var(--line)}.step-result{margin:3px 0 6px;padding:5px 7px;border-radius:4px;background:#f5f7fa;color:#344054;font-size:12px}.step.blocked .step-result{background:var(--status-blocked-bg);color:var(--status-blocked-fg)}.step.pending .step-result{background:#f2f4f7;color:#667085}.step-evidence{min-height:0}.step-evidence .chip-row{gap:4px;margin-top:4px}.step-evidence .chip{padding:2px 6px;font-size:11px}.step-evidence .empty-evidence{color:#98a2b3;font-size:11px}.arrow{flex:0 0 auto;align-self:center;color:#8993a2;font-size:17px}.footer{margin-top:35px;border-top:1px solid var(--line);padding-top:14px;color:var(--muted);font-size:12px}
-    @media(max-width:950px){header{padding:26px 20px}main{padding:20px 14px}.grid,.grid.three,.crypto-grid{grid-template-columns:1fr}.card.wide{grid-column:auto}.tabs{padding:0 6px}.lead{display:block}.diff-line{grid-template-columns:1fr;gap:2px}.scenario-name-list{grid-template-columns:1fr}}
-    @media(max-width:560px){.raw-pair{grid-template-columns:1fr}}
-    @media print{.tabs{display:none}.panel{display:block!important;page-break-before:always}.panel:first-child{page-break-before:auto}details>.detail{display:block}}
+    :root {
+      --ink: #172033;
+      --muted: #667085;
+      --line: #dfe3ea;
+      --paper: #fff;
+      --soft: #f6f7f9;
+      --nav: #172033;
+      --nav-soft: #243047;
+      --blue: #245fbd;
+      --blue-soft: #eef4fb;
+      --green: #356b59;
+      --green-soft: #edf6f2;
+      --amber: #805716;
+      --amber-soft: #faf4e8;
+      --red: #8f3f39;
+      --red-soft: #f9edeb;
+      --status-pass-border: #cfe6dc;
+      --status-mismatch-border: #eccfcb;
+      --status-observed-border: #d5e0ed;
+      --status-blocked-border: #ead9b8;
+      --status-neutral: #596273;
+      --status-neutral-bg: #f0f2f5;
+      --status-neutral-border: #d9dee6;
+      --sidebar: 244px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: #eef1f5;
+      color: var(--ink);
+      font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Microsoft YaHei", sans-serif;
+    }
+    button, input { font: inherit; }
+    button:focus-visible, input:focus-visible, a:focus-visible, summary:focus-visible {
+      outline: 2px solid #7ba8ff;
+      outline-offset: 2px;
+    }
+    .shell {
+      max-width: 1580px;
+      min-height: 100vh;
+      margin: auto;
+      background: var(--paper);
+      box-shadow: 0 0 32px #24334a14;
+    }
+    header {
+      padding: 24px 32px 20px;
+      color: #fff;
+      background: linear-gradient(118deg, #121b2e, #214675);
+    }
+    h1 { margin: 4px 0; font-size: 28px; line-height: 1.25; }
+    .eyebrow { color: #b9cefa; font-size: 11px; letter-spacing: .13em; }
+    .header-summary { max-width: 1040px; margin-top: 5px; color: #d7e0ef; }
+    .header-bottom {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-top: 16px;
+    }
+    .stats { display: flex; flex-wrap: wrap; gap: 18px; }
+    .stat { min-width: 72px; }
+    .stat b { display: block; font-size: 19px; line-height: 1.15; }
+    .stat span { color: #c9d4e6; font-size: 11px; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: var(--sidebar) minmax(0, 1fr);
+      align-items: start;
+    }
+    .sidebar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      height: 100vh;
+      overflow: hidden;
+      color: #d9e1ee;
+      background: var(--nav);
+      border-top: 1px solid #ffffff12;
+    }
+    .nav-search-wrap {
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid #ffffff14;
+    }
+    #interface-search {
+      width: 100%;
+      border: 1px solid #ffffff24;
+      border-radius: 6px;
+      padding: 7px 9px;
+      color: #fff;
+      background: #ffffff0d;
+    }
+    #interface-search::placeholder { color: #9daabe; }
+    .tabs {
+      height: calc(100vh - 57px);
+      overflow: auto;
+      padding: 8px;
+    }
+    .tab {
+      display: grid;
+      grid-template-columns: 35px minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+      border: 0;
+      border-left: 3px solid transparent;
+      border-radius: 5px;
+      padding: 8px 9px;
+      color: #b9c4d5;
+      text-align: left;
+      background: transparent;
+      cursor: pointer;
+    }
+    .tab + .tab { margin-top: 2px; }
+    .tab:hover { color: #fff; background: #ffffff0b; }
+    .tab.active {
+      color: #fff;
+      border-left-color: #7ba8ff;
+      background: var(--nav-soft);
+    }
+    .tab-method {
+      overflow: hidden;
+      color: #91a4c1;
+      font: 10px/1.2 "SFMono-Regular", Consolas, monospace;
+      text-overflow: ellipsis;
+    }
+    .tab-name {
+      min-width: 0;
+      overflow: hidden;
+      font-weight: 650;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .tab.hidden { display: none; }
+    main { min-width: 0; padding: 26px 32px 54px; }
+    .panel { display: none; min-width: 0; }
+    .panel.active { display: block; }
+    .lead {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+    .lead h2 { margin: 0; font-size: 24px; line-height: 1.3; }
+    .lead p { margin: 4px 0 0; color: var(--muted); }
+    .endpoint-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .method {
+      border-radius: 4px;
+      padding: 2px 6px;
+      color: #244f8f;
+      background: #edf3fb;
+      font: 700 11px/1.4 "SFMono-Regular", Consolas, monospace;
+    }
+    .endpoint-url {
+      overflow-wrap: anywhere;
+      font: 12px/1.5 "SFMono-Regular", Consolas, monospace;
+    }
+    section { margin: 22px 0; scroll-margin-top: 14px; }
+    section > h3 {
+      margin: 0 0 11px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--line);
+      font-size: 17px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 11px;
+    }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 13px 14px;
+      background: #fff;
+    }
+    .card.wide { grid-column: 1 / -1; }
+    .card h4 { margin: 0 0 8px; font-size: 14px; }
+    .label {
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .muted { color: var(--muted); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+    .badge.PASS, .badge.COMPLETE {
+      color: var(--green);
+      background: var(--green-soft);
+      border-color: var(--status-pass-border);
+    }
+    .badge.DOCUMENT_MISMATCH {
+      color: var(--red);
+      background: var(--red-soft);
+      border-color: var(--status-mismatch-border);
+    }
+    .badge.OBSERVED {
+      color: #415f83;
+      background: var(--blue-soft);
+      border-color: var(--status-observed-border);
+    }
+    .badge.BLOCKED, .badge.COMPLETE_WITH_LIMITATIONS {
+      color: var(--amber);
+      background: var(--amber-soft);
+      border-color: var(--status-blocked-border);
+    }
+    .badge.NOT_APPLICABLE {
+      color: var(--status-neutral);
+      background: var(--status-neutral-bg);
+      border-color: var(--status-neutral-border);
+    }
+    .badge.NOT_EXECUTED, .badge.INCOMPLETE {
+      color: var(--status-neutral);
+      background: #fff;
+      border-color: var(--status-neutral-border);
+      border-style: dashed;
+    }
+    .priority-badge {
+      display: inline-flex;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .priority-badge.P0 { color: #87413b; background: #f7ecea; border-color: #ecd1cd; }
+    .priority-badge.P1 { color: #76551f; background: #f8f2e6; border-color: #eadbbc; }
+    .priority-badge.P2 { color: #596273; background: #edf0f4; border-color: #dce1e8; }
+
+    .kv { display: grid; gap: 6px; }
+    .kv-row {
+      display: grid;
+      grid-template-columns: minmax(102px, 30%) minmax(0, 1fr);
+      gap: 10px;
+      padding-bottom: 5px;
+      border-bottom: 1px dashed #e5e9ef;
+    }
+    .kv-row:last-child { padding-bottom: 0; border-bottom: 0; }
+    .kv-key { color: var(--muted); font-size: 12px; }
+    .kv-value { min-width: 0; overflow-wrap: anywhere; }
+    .compact-list { margin: 5px 0 0; padding-left: 18px; }
+    .compact-list li { margin: 4px 0; }
+    .scenario-name-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4px 20px;
+      max-height: 190px;
+      overflow: auto;
+      margin: 0;
+      padding: 0 4px 0 18px;
+    }
+    .scenario-name-list li { padding: 1px 0; overflow-wrap: anywhere; }
+    .doc-links { display: grid; gap: 5px; }
+    .doc-links a { color: var(--blue); text-decoration: none; overflow-wrap: anywhere; }
+    .doc-links a:hover { text-decoration: underline; }
+    .literal-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 14px;
+      margin-top: 9px;
+    }
+    code {
+      border-radius: 3px;
+      padding: 1px 4px;
+      background: #f2f4f7;
+      font-family: "SFMono-Regular", Consolas, monospace;
+    }
+    .literal-list code { padding: 0; background: none; }
+    .question-groups { display: grid; gap: 9px; }
+    .question-group + .question-group {
+      padding-top: 9px;
+      border-top: 1px solid var(--line);
+    }
+    .question-head { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; }
+    .question-list { margin: 4px 0 0; padding-left: 18px; }
+    .question-list li { margin: 4px 0; }
+    .empty {
+      padding: 11px;
+      border: 1px dashed #cfd5df;
+      border-radius: 6px;
+      color: var(--muted);
+    }
+
+    .finding {
+      margin: 8px 0;
+      border: 1px solid var(--line);
+      border-left: 3px solid #aeb7c4;
+      border-radius: 7px;
+      padding: 11px 13px;
+      background: #fff;
+    }
+    .finding.P0 { border-left-color: #ba6b64; }
+    .finding.P1 { border-left-color: #c2a267; }
+    .finding.P2 { border-left-color: #9ca6b4; }
+    .finding-head { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; margin-bottom: 7px; }
+    .diff-line {
+      display: grid;
+      grid-template-columns: 86px minmax(0, 1fr);
+      gap: 8px;
+      margin: 4px 0;
+    }
+    .diff-label { color: var(--muted); font-size: 12px; }
+    .doc-old {
+      color: var(--red);
+      text-decoration-color: #c16860;
+      text-decoration-thickness: 1.5px;
+    }
+    .observed-new { color: #174e96; }
+    .correction-new { color: var(--green); font-weight: 650; text-decoration: none; }
+
+    .table-block { min-width: 0; }
+    .table-tools {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 8px;
+    }
+    .filter-button {
+      border: 1px solid #d7dce4;
+      border-radius: 5px;
+      padding: 5px 8px;
+      color: #4b5567;
+      background: #fff;
+      cursor: pointer;
+    }
+    .filter-button:hover { background: var(--soft); }
+    .filter-button.active {
+      color: #234d88;
+      border-color: #abc0df;
+      background: #eef4fb;
+    }
+    .table-search {
+      width: min(230px, 100%);
+      margin-left: auto;
+      border: 1px solid #d7dce4;
+      border-radius: 5px;
+      padding: 5px 8px;
+    }
+    .table-count { color: var(--muted); font-size: 12px; }
+    .table-wrap {
+      max-height: min(70vh, 720px);
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      scrollbar-color: #cbd2dc transparent;
+    }
+    table { width: 100%; min-width: 920px; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+    th, td {
+      padding: 8px 9px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      color: #536074;
+      background: var(--soft);
+      box-shadow: 0 1px 0 var(--line);
+      font-size: 10px;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+    th:first-child, td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      background: #fff;
+      box-shadow: 1px 0 0 var(--line);
+    }
+    th:first-child { z-index: 3; background: var(--soft); }
+    tr:last-child td { border-bottom: 0; }
+    tr.mismatch-row td { background: #fffafa; }
+    tr.mismatch-row td:first-child { background: #fffafa; }
+    tr[hidden] { display: none; }
+    .field-head { display: grid; gap: 5px; justify-items: start; }
+    .field-name { font-weight: 700; }
+    .field-name code { white-space: normal; word-break: break-word; }
+    .constraint-line + .constraint-line { margin-top: 3px; }
+    .constraint-label { color: var(--muted); font-size: 10px; text-transform: uppercase; }
+    .critical-probe { margin-top: 7px; padding-top: 6px; border-top: 1px dashed #e3e7ed; color: #4b5567; font-size: 11px; }
+    .critical-probe strong { display: block; color: #344054; }
+    .cell-evidence { margin-top: 7px; }
+    .cell-note { margin-top: 6px; color: var(--muted); font-size: 11px; }
+    .evidence-row { display: flex; flex-wrap: wrap; gap: 4px 10px; }
+    .evidence-link, .evidence-text {
+      color: #596780;
+      font: 11px/1.4 "SFMono-Regular", Consolas, monospace;
+    }
+    .evidence-link { color: var(--blue); text-decoration: none; }
+    .evidence-link:hover { text-decoration: underline; }
+
+    details {
+      margin: 8px 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+    }
+    summary {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 11px;
+      background: #fafbfd;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    summary .grow { flex: 1; min-width: 0; }
+    .detail { padding: 11px; }
+    .case-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .http-status { color: var(--blue); font-weight: 800; }
+    .case-claim {
+      margin-bottom: 9px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+    }
+    .raw-block { margin-top: 12px; }
+    .raw-pair {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 12px;
+    }
+    .raw-message { min-width: 0; margin-top: 6px; }
+    .raw-title { margin: 0 0 4px; color: var(--muted); font-size: 10px; letter-spacing: .04em; text-transform: uppercase; }
+    pre {
+      max-height: 520px;
+      overflow: auto;
+      margin: 0;
+      border-radius: 6px;
+      padding: 10px;
+      color: #dbe6f5;
+      background: #101722;
+      font: 12px/1.5 "SFMono-Regular", Consolas, monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .crypto-card { grid-column: 1 / -1; padding: 0; overflow: hidden; }
+    .crypto-card > h4 { margin: 0; padding: 11px 13px; border-bottom: 1px solid var(--line); background: #fafbfd; }
+    .crypto-inline {
+      display: grid;
+      grid-template-columns: 110px minmax(0, 1fr);
+      gap: 10px;
+      padding: 9px 13px;
+    }
+    .crypto-inline + .crypto-inline { border-top: 1px solid var(--line); }
+    .crypto-inline-label { color: var(--muted); font-size: 12px; }
+    .crypto-inline-value { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+    .crypto-section { padding: 10px 13px 12px; }
+    .crypto-section + .crypto-section { border-top: 1px solid var(--line); }
+    .crypto-section-title { margin: 0 0 8px; font-size: 13px; }
+    .crypto-grid { display: grid; grid-template-columns: 1.08fr 1fr 1fr; gap: 8px; }
+    .crypto-pane { min-width: 0; padding: 9px; border: 1px solid #e1e5eb; border-radius: 6px; }
+    .crypto-pane-head { display: flex; align-items: center; justify-content: space-between; gap: 7px; margin-bottom: 7px; }
+    .crypto-pane-head strong { font-size: 12px; }
+    .crypto-pane .kv-row { grid-template-columns: minmax(78px, 31%) minmax(0, 1fr); gap: 7px; }
+    .crypto-code summary { padding: 6px 8px; font-size: 11px; }
+    .crypto-code pre { max-height: 280px; border-radius: 0; }
+
+    .scenario-note {
+      margin: 8px 0;
+      padding: 7px 9px;
+      border-left: 3px solid #98a2b3;
+      color: #475467;
+      background: #fafbfc;
+    }
+    .scenario-progress {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 7px 10px;
+      align-items: center;
+      margin: 10px 0;
+      padding: 8px 10px;
+      border: 1px solid #d8dee7;
+      border-left: 3px solid #9aa5b5;
+      border-radius: 6px;
+      background: #fafbfc;
+    }
+    .scenario-progress.PASS { border-left-color: #7ca895; }
+    .scenario-progress.DOCUMENT_MISMATCH { border-left-color: #c87d76; }
+    .scenario-progress.OBSERVED { border-left-color: #7f9bb8; }
+    .scenario-progress.BLOCKED { border-left-color: #c59a55; }
+    .progress-copy { font-weight: 650; }
+    .progress-meter {
+      grid-column: 1 / -1;
+      height: 3px;
+      overflow: hidden;
+      border-radius: 99px;
+      background: #e3e7ed;
+    }
+    .progress-meter span { display: block; height: 100%; border-radius: inherit; background: #8291a8; }
+    .steps {
+      display: flex;
+      gap: 6px;
+      align-items: flex-start;
+      overflow-x: auto;
+      padding: 1px 1px 8px;
+      scrollbar-color: #cbd2dc transparent;
+    }
+    .step {
+      flex: 0 0 210px;
+      min-width: 0;
+      border: 1px solid #dce1e8;
+      border-left: 3px solid #c5ccd6;
+      border-radius: 7px;
+      padding: 8px 9px;
+      background: #fff;
+    }
+    .step.blocked { border-left-color: #c59a55; }
+    .step.pending { border-style: dashed; color: #687183; background: #fbfcfd; }
+    .step-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; }
+    .step-head strong { font-size: 13px; line-height: 1.35; }
+    .step-interface { margin: 2px 0 5px; color: var(--muted); font-size: 9px; letter-spacing: .05em; text-transform: uppercase; }
+    .step-zone {
+      display: grid;
+      grid-template-columns: 31px minmax(0, 1fr);
+      gap: 4px;
+      padding: 3px 0;
+    }
+    .step-zone + .step-zone { border-top: 1px dashed #e5e9ef; }
+    .field-list { min-width: 0; }
+    .field-item {
+      color: #344054;
+      font: 11px/1.35 "SFMono-Regular", Consolas, monospace;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .field-item + .field-item { margin-top: 2px; }
+    .field-empty, .empty-evidence { color: #98a2b3; font-size: 11px; }
+    .step-outcome { margin-top: 4px; padding-top: 5px; border-top: 1px solid var(--line); }
+    .step-result { margin: 3px 0 5px; color: #344054; font-size: 11px; }
+    .step.blocked .step-result { color: var(--amber); }
+    .arrow { flex: 0 0 auto; align-self: center; color: #8993a2; font-size: 15px; }
+    .footer { margin-top: 28px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+
+    @media (max-width: 1100px) {
+      .grid.three, .crypto-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 900px) {
+      .layout { display: block; }
+      .sidebar {
+        height: auto;
+        border-top: 0;
+        border-bottom: 1px solid #ffffff14;
+      }
+      .nav-search-wrap { padding: 8px 10px; }
+      #interface-search { padding: 6px 8px; }
+      .tabs {
+        display: flex;
+        height: auto;
+        overflow-x: auto;
+        padding: 6px;
+      }
+      .tab {
+        display: flex;
+        flex: 0 0 auto;
+        width: auto;
+        max-width: 220px;
+        border-left: 0;
+        border-bottom: 3px solid transparent;
+      }
+      .tab + .tab { margin-top: 0; }
+      .tab.active { border-left-color: transparent; border-bottom-color: #7ba8ff; }
+      main { padding: 22px 18px 46px; }
+      .grid { grid-template-columns: 1fr; }
+      .card.wide { grid-column: auto; }
+    }
+    @media (max-width: 620px) {
+      header { padding: 20px 18px 17px; }
+      h1 { font-size: 23px; }
+      .header-bottom { align-items: flex-start; flex-direction: column; }
+      .stats { gap: 13px; }
+      main { padding: 18px 12px 40px; }
+      .lead { display: block; }
+      .lead > .badge { margin-top: 8px; }
+      .scenario-name-list { grid-template-columns: 1fr; }
+      .diff-line { grid-template-columns: 1fr; gap: 1px; }
+      .table-search { width: 100%; margin-left: 0; }
+      .raw-pair { grid-template-columns: 1fr; }
+      .crypto-inline { grid-template-columns: 1fr; gap: 3px; }
+      .steps { display: grid; overflow: visible; }
+      .step { width: 100%; }
+      .arrow { display: none; }
+    }
+    @media print {
+      body, .shell { background: #fff; box-shadow: none; }
+      header { color: #111; background: #fff; border-bottom: 1px solid #bbb; }
+      .eyebrow, .header-summary, .stat span { color: #555; }
+      .sidebar, .table-tools { display: none !important; }
+      .layout { display: block; }
+      main { padding: 0; }
+      .panel { display: block !important; page-break-before: always; }
+      .panel:first-child { page-break-before: auto; }
+      section { break-inside: auto; }
+      .card, .finding, details, .step { break-inside: avoid; }
+      details > .detail { display: block !important; }
+      .table-wrap { max-height: none; overflow: visible; }
+      table { min-width: 0; font-size: 9px; }
+      th, td { position: static !important; padding: 5px; box-shadow: none !important; }
+      .raw-pair, .crypto-grid { grid-template-columns: 1fr; }
+      pre { max-height: none; overflow: visible; color: #111; background: #f5f5f5; }
+    }
   </style>
 </head>
 <body>
@@ -38,64 +644,887 @@
   <header>
     <div class="eyebrow">THIRD-PARTY API · DOCUMENTATION VS EVIDENCE</div>
     <h1 id="title"></h1>
-    <div class="subtitle" id="summary"></div>
-    <div class="stats" id="stats"></div>
+    <div class="header-summary" id="summary"></div>
+    <div class="header-bottom">
+      <div class="stats" id="stats"></div>
+      <div id="overall-status"></div>
+    </div>
   </header>
-  <nav class="tabs" id="tabs"></nav>
-  <main id="panels"></main>
+  <div class="layout">
+    <aside class="sidebar" aria-label="报告导航">
+      <div class="nav-search-wrap">
+        <input id="interface-search" type="search" placeholder="搜索接口" aria-label="搜索接口">
+      </div>
+      <nav class="tabs" id="tabs" role="tablist" aria-label="接口页签"></nav>
+    </aside>
+    <main id="panels"></main>
+  </div>
 </div>
 <script id="report-data" type="application/json">__REPORT_DATA__</script>
 <script>
-const report=JSON.parse(document.getElementById("report-data").textContent);
-const $=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n};
-const pretty=v=>typeof v==="string"?v:JSON.stringify(v,null,2);
-const empty=v=>v==null||v===""||(Array.isArray(v)&&!v.length)||(typeof v==="object"&&!Array.isArray(v)&&!Object.keys(v).length);
-const badge=v=>$("span","badge "+(v||"NOT_EXECUTED"),v||"NOT_EXECUTED");
-const verdictValues=new Set(["PASS","DOCUMENT_MISMATCH","OBSERVED","BLOCKED","NOT_APPLICABLE","NOT_EXECUTED","COMPLETE_WITH_LIMITATIONS"]);
-const short=(v,max=120)=>{const text=typeof v==="string"?v:JSON.stringify(v);return text.length>max?text.slice(0,max-1)+"…":text};
-const primitive=v=>v==null?"—":Array.isArray(v)?v.map(x=>short(x,42)).join("、"):typeof v==="object"?Object.entries(v).slice(0,6).map(([k,item])=>`${k}=${short(item,64)}`).join("；"):String(v);
-function section(title){const s=$("section"),h=$("h3","",title),b=$("div");s.append(h,b);return {root:s,body:b}}
-function chip(text,code=false){const c=$("span","chip");c.append($(code?"code":"span","",String(text)));return c}
-function chipRow(items,code=false){const row=$("div","chip-row");(items||[]).filter(x=>!empty(x)).forEach(x=>row.append(chip(x,code)));return row}
-function fieldList(items){const list=$("div","field-list"),values=(items||[]).filter(x=>!empty(x));if(!values.length){list.append($("div","field-empty","—"));return list}values.forEach(item=>list.append($("div","field-item",primitive(item))));return list}
-function listCard(title,items){const c=$("div","card"),h=$("h4","",title);c.append(h);if(!items?.length){c.append($("div","empty","无"));return c}const ul=$("ul","compact-list");items.forEach(item=>ul.append($("li","",primitive(item))));c.append(ul);return c}
-function questionCard(items){const c=$("div","card"),h=$("h4","","外部待确认事项"),body=$("div","question-groups"),definitions={P0:"必须确认",P1:"建议确认",P2:"允许忽略"},normalized=(items||[]).map(item=>typeof item==="string"?{priority:"P1",question:item}:item);c.append(h);["P0","P1","P2"].forEach(priority=>{const rows=normalized.filter(item=>item?.priority===priority);if(!rows.length)return;const group=$("div","question-group"),head=$("div","question-head"),tag=$("span",`priority-badge ${priority}`,priority),ul=$("ul","question-list");head.append(tag,$("span","",definitions[priority]));rows.forEach(item=>ul.append($("li","",item.question)));group.append(head,ul);body.append(group)});if(!body.children.length)body.append($("div","empty","无"));c.append(body);return c}
-function kvList(rows){const body=$("div","kv");(rows||[]).filter(([,v])=>!empty(v)).forEach(([k,v])=>{const row=$("div","kv-row"),value=$("div","kv-value");if(typeof v==="string"&&verdictValues.has(v))value.append(badge(v));else value.textContent=primitive(v);row.append($("div","kv-key",k),value);body.append(row)});if(!body.children.length)body.append($("div","empty","未记录"));return body}
-function kvCard(title,rows){const c=$("div","card"),h=$("h4","",title);c.append(h,kvList(rows));return c}
-function flatten(value,prefix="",limit=12,out=[]){if(out.length>=limit||empty(value))return out;if(Array.isArray(value)){out.push([prefix||"范围",value.map(x=>short(x,48)).join("、")]);return out}if(typeof value!=="object"){out.push([prefix||"值",short(value)]);return out}for(const [key,item] of Object.entries(value)){if(out.length>=limit)break;if(empty(item))continue;const path=prefix?`${prefix}.${key}`:key;if(item&&typeof item==="object"&&!Array.isArray(item))flatten(item,path,limit,out);else out.push([path,Array.isArray(item)?item.map(x=>short(x,40)).join("、"):short(item)])}return out}
-function compactObjectCard(title,value){return kvCard(title,flatten(value))}
-const cryptoLabels={source:"文档来源",algorithm:"算法",key:"密钥",keySource:"密钥来源",message:"参与计算的数据",encoding:"字符 / 字节规则",output:"输出格式",signatureLocation:"签名位置",comparison:"比较方式",transport:"传输加密",fieldEncryption:"字段加密",mode:"模式",padding:"填充",iv:"IV",nonce:"Nonce",tag:"认证标签",aad:"AAD"};
-function cryptoRows(value){return flatten(value,"",20).map(([k,v])=>[cryptoLabels[k]||k,v])}
-function cryptoPane(title,data,official=false){const pane=$("div","crypto-pane"),head=$("div","crypto-pane-head");head.append($("strong","",title));if(!official&&data?.verdict)head.append(badge(data.verdict));pane.append(head);if(empty(data)){pane.append($("div","empty","未记录"));return pane}if(official){pane.append(kvList(cryptoRows(data)));return pane}const rows=[["运行环境",data.runtime],["测试向量",data.testVector],["实测结果",data.observed]];pane.append(kvList(rows));if(data.evidenceIds?.length){const evidence=$("div","crypto-evidence");evidence.append(chipRow(data.evidenceIds,true));pane.append(evidence)}if(data.code){const d=$("details","crypto-code"),summary=$("summary","","查看可执行代码"),pre=$("pre");pre.textContent=data.code;d.append(summary,pre);pane.append(d)}return pane}
-function cryptoSection(title,value){const root=$("div","crypto-section"),head=$("div","crypto-section-title");head.append($("h5","",title));root.append(head);if(value?.official){const grid=$("div","crypto-grid");grid.append(cryptoPane("官方说明",value.official,true),cryptoPane("本地代码实测",value.localVerification),cryptoPane("真实第三方互操作",value.interoperability));root.append(grid)}else root.append(kvList(cryptoRows(value)));return root}
-function cryptographyCard(signing,encryption){const structured=Boolean(signing?.official||encryption?.official),c=$("div",`card crypto-card${structured?" wide":""}`);c.append($("h4","","密码学实现与验证"),cryptoSection("签名 / 验签",signing),cryptoSection("加密 / 解密",encryption));return c}
-function docsCard(docs){const c=$("div","card"),h=$("h4","","第三方文档地址"),list=$("div","doc-links");c.append(h);if(!docs?.length){c.append($("div","empty","未记录"));return c}docs.forEach(d=>{if(/^https?:\/\//i.test(d.url)){const a=$("a","",d.url);a.href=d.url;a.target="_blank";a.rel="noreferrer";list.append(a)}else list.append(chip(d.url,true))});c.append(list);return c}
-function scopeCard(scope){const c=$("div","card"),h=$("h4","","本次接口范围");c.append(h);(scope||[]).forEach(item=>{const row=$("div","kv-row");const left=$("div","kv-key");left.append(chip(item.methodHint||"API",true));row.append(left,$("div","kv-value",`${item.requestedName||""} · ${item.pathHint||""}`));c.append(row)});return c}
-function scenarioInputCard(scenarios){const items=(scenarios||[]).map(x=>x.name).filter(Boolean),c=$("div","card"),h=$("h4","",`测试场景${items.length?`（${items.length}）`:""}`);c.append(h);if(!items.length){c.append($("div","empty","未提供或推导场景"));return c}const list=$("ul","scenario-name-list");items.forEach(name=>list.append($("li","",name)));c.append(list);return c}
-function terminologyCard(terms){const c=$("div","card wide"),h=$("h4","","术语与协议字面值");c.append(h);const provider=terms?.provider||{};c.append(kvCard("提供方",[[ "规范名称",provider.canonical],[ "别名",(provider.aliases||[]).join("、")]]));const business=Object.entries(terms?.businessTerms||{}).map(([k,v])=>`${k} = ${v}`);c.append(chipRow(business),chipRow(terms?.protocolLiterals||[],true));return c}
-function statusCodes(value){if(typeof value==="number"&&value>=100&&value<=599)return [value];const text=typeof value==="string"?value:JSON.stringify(value);return [...new Set((text.match(/\b[1-5]\d{2}\b/g)||[]).map(Number))]}
-function isMismatch(row){if(row?.verdict)return row.verdict==="DOCUMENT_MISMATCH";if(empty(row?.documented)||empty(row?.observed)||empty(row?.correction))return false;const observed=primitive(row.observed);if(/未执行|未发送|not executed/i.test(observed))return false;if(!empty(row.code)){const documentedCodes=statusCodes(row.code),observedCodes=statusCodes(row.observed);if(documentedCodes.length&&observedCodes.length)return !observedCodes.some(code=>documentedCodes.includes(code))}const text=[row.documented,row.observed,row.correction].map(primitive).join(" ");return /(废弃|删除|改读|新增|不具备|自行幂等|自行提供|客户端限制|前置限制|按整数秒|不要假设|不能|不完全同构|未出现|官方未|未声明|与.+不符|缺陷|重复.+新 ID|返回(?: HTTP)? 500|返回 201|不是|改为|视为必填|整体按必填|当前实现|也覆盖|不等于)/i.test(text)}
-function cellNode(row,column){const value=row[column.key];const td=$("td",column.key==="field"?"field-name":"");if(empty(value)){td.textContent="—";return td}if(column.key==="field"){td.append($("code","",primitive(value)));return td}if(column.key==="verdict"&&verdictValues.has(value)){td.append(badge(value));return td}if(column.key==="evidenceIds"){td.append($("span","evidence",(value||[]).join(" · ")||"—"));return td}const mismatch=isMismatch(row);if(column.key==="documented"&&mismatch){td.append($("del","doc-old",primitive(value)));return td}if(column.key==="observed"&&mismatch){td.append($("span","observed-new",primitive(value)));return td}if(column.key==="correction"&&mismatch){td.append($("ins","correction-new",primitive(value)));return td}td.textContent=primitive(value);return td}
-function table(rows,columns){if(!rows?.length)return $("div","empty","无记录");const w=$("div","table-wrap"),t=$("table"),head=$("thead"),hr=$("tr");columns.forEach(c=>hr.append($("th","",c.label)));head.append(hr);t.append(head);const body=$("tbody");rows.forEach(row=>{const tr=$("tr",isMismatch(row)?"mismatch-row":"");columns.forEach(c=>tr.append(cellNode(row,c)));body.append(tr)});t.append(body);w.append(t);return w}
-function urlPath(url){try{const parsed=new URL(url);return parsed.pathname+parsed.search}catch{return url||"—"}}
-function rawMessages(item){const root=$("div","raw-block"),label=$("div","label","完整脱敏原始报文"),pair=$("div","raw-pair"),req=$("div","raw-message"),res=$("div","raw-message");req.append($("div","raw-title","Request"),Object.assign($("pre"),{textContent:pretty(item.request)}));res.append($("div","raw-title","Response"),Object.assign($("pre"),{textContent:pretty(item.response)}));pair.append(req,res);root.append(label,pair);return root}
-function claimCard(item){const c=$("div","card wide"),head=$("div","finding-head");head.append($("strong","","文档与实测结论"));c.append(head);const documented=$("div","diff-line"),mismatch=item.verdict==="DOCUMENT_MISMATCH"||item.verdict==="BLOCKED";documented.append($("div","diff-label","文档声明"),mismatch?$("del","doc-old",primitive(item.documented)):$("div","",primitive(item.documented)));const observed=$("div","diff-line");observed.append($("div","diff-label","实测结果"),$("div",mismatch?"observed-new":"",primitive(item.observed)));c.append(documented,observed);return c}
-function caseList(cases){const root=$("div");if(!cases?.length)return $("div","empty","没有执行记录");cases.forEach(item=>{const d=$("details"),sum=$("summary"),meta=$("span","case-meta");meta.append($("span","http-status",item.response?.httpStatus?`HTTP ${item.response.httpStatus}`:"未执行"),$("span","",item.request?.method||""),$("span","",urlPath(item.request?.url)));sum.append($("code","",item.id||"CASE"),$("span","grow",item.name||"Unnamed"),meta,badge(item.verdict));const detail=$("div","detail");detail.append(claimCard(item),chipRow(item.evidenceIds||[],true),rawMessages(item));d.append(sum,detail);root.append(d)});return root}
-function findingBlock(f){const x=$("div","finding "+(f.severity||"")),head=$("div","finding-head"),mismatch=f.category==="DOCUMENT_MISMATCH";head.append(badge(f.category),$("strong","",`${f.severity||""} · ${f.interfaceId||""}`));x.append(head);const oldLine=$("div","diff-line"),obsLine=$("div","diff-line"),newLine=$("div","diff-line");oldLine.append($("div","diff-label","文档声明"),$(mismatch?"del":"span",mismatch?"doc-old":"",primitive(f.documented)));obsLine.append($("div","diff-label","实测结果"),$("span","observed-new",primitive(f.observed)));newLine.append($("div","diff-label","接入修订"),$(mismatch?"ins":"span","correction-new",primitive(f.correction)));x.append(oldLine,obsLine,newLine,chipRow(f.evidenceIds||[],true));return x}
-function overview(){const p=$("article","panel active");p.id="overview";const lead=$("div","lead"),left=$("div");left.append($("h2","","执行总览"),$("p","",report.meta.summary||""));lead.append(left,badge(report.meta.status));p.append(lead);let s=section("四元素输入");const env=report.input.environment||{},testData=env.testData||{},callback=env.callback||{},callbackStatus=Object.keys(callback).length?(callback.urlRef==="[NOT_PROVIDED]"?"未提供":"已提供"):"NOT_APPLICABLE",g=$("div","grid");g.append(docsCard(report.input.documentation),kvCard("测试环境",[["环境",env.name],["Base URL",env.baseUrl],["生产环境",env.constraints?.production===false?"否":"未确认"],["测试数据",[testData.country,testData.state,testData.lga].filter(Boolean).join(" / ")],["回调条件",callbackStatus]]),scopeCard(report.input.interfaceScope),scenarioInputCard(report.scenarios));s.body.append(g);p.append(s.root);s=section("术语");s.body.append(terminologyCard(report.terminology));p.append(s.root);s=section("关键发现");if(report.findings.length)report.findings.forEach(f=>s.body.append(findingBlock(f)));else s.body.append($("div","empty","没有关键发现"));p.append(s.root);s=section("限制、外部沟通与副作用");const gg=$("div","grid three");gg.append(listCard("限制",report.limitations),questionCard(report.questions),listCard("测试副作用",(report.sideEffects||[]).map(x=>`${x.class} × ${x.count}：${x.detail||""}`)));s.body.append(gg);p.append(s.root);return p}
-const fieldColumns=[{key:"field",label:"字段"},{key:"type",label:"类型"},{key:"required",label:"必填"},{key:"documented",label:"文档声明"},{key:"observed",label:"实测结果"},{key:"correction",label:"接入修订"},{key:"evidenceIds",label:"Evidence"}];
-const errorColumns=[{key:"code",label:"错误码/条件"},{key:"documented",label:"文档声明"},{key:"observed",label:"实测结果"},{key:"correction",label:"接入修订"},{key:"evidenceIds",label:"Evidence"}];
-function interfacePanel(item){const p=$("article","panel");p.id=item.id;const lead=$("div","lead"),left=$("div");left.append($("h2","",item.name),$("p","",`${item.method||""} ${item.url||""}`));lead.append(left);p.append(lead);let s=section("接口契约");const g=$("div","grid");g.append(kvCard("接口说明",[["用途",item.description],["方法",item.method],["URL",item.url]]),compactObjectCard("鉴权",item.authentication),cryptographyCard(item.signing,item.encryption),compactObjectCard("支持机构 / 地域 / 币种",item.supportScope));s.body.append(g);p.append(s.root);s=section("请求字段");s.body.append(table(item.requestFields,fieldColumns));p.append(s.root);s=section("响应字段");s.body.append(table(item.responseFields,fieldColumns));p.append(s.root);s=section("错误码");s.body.append(table(item.errorCodes,errorColumns));p.append(s.root);s=section("实际请求与响应");s.body.append(caseList(item.cases));p.append(s.root);return p}
-function stepVerdict(step){if(verdictValues.has(step?.verdict))return step.verdict;const text=primitive(step?.observed);if(/BLOCKED|未执行|未提供|not[_ -]?executed/i.test(text))return /BLOCKED|未提供/i.test(text)?"BLOCKED":"NOT_EXECUTED";if(step?.evidenceIds?.length)return "PASS";return empty(step?.observed)?"NOT_EXECUTED":"OBSERVED"}
-function stepState(verdict){if(verdict==="BLOCKED")return "blocked";if(verdict==="NOT_EXECUTED")return "pending";return "completed"}
-function scenarioProgress(sc){const steps=sc.steps||[],verdicts=steps.map(stepVerdict),completed=verdicts.filter(v=>!["BLOCKED","NOT_EXECUTED"].includes(v)).length,blocked=verdicts.indexOf("BLOCKED"),pending=verdicts.indexOf("NOT_EXECUTED");let state="PASS",progressCount=completed,copy=`已完成 ${completed}/${steps.length} 步`;if(blocked>=0){state="BLOCKED";const before=verdicts.slice(0,blocked).filter(v=>!["BLOCKED","NOT_EXECUTED"].includes(v)).length,after=verdicts.slice(blocked+1).filter(v=>!["BLOCKED","NOT_EXECUTED"].includes(v)).length;progressCount=before;copy=`主链执行到第 ${blocked+1} 步 · 卡在「${steps[blocked].action}」 · 前置完成 ${before}/${steps.length} 步${after?` · 其后 ${after} 步有独立证据`:""}`}else if(pending>=0){state="NOT_EXECUTED";copy=`已完成 ${completed}/${steps.length} 步 · 下一步为第 ${pending+1} 步「${steps[pending].action}」`}else if(sc.verdict!=="PASS"){state=sc.verdict||"OBSERVED";copy+=` · 场景裁决 ${state}`}const box=$("div",`scenario-progress ${state}`),meter=$("div","progress-meter"),fill=$("span");fill.style.width=`${steps.length?Math.round(progressCount/steps.length*100):0}%`;meter.append(fill);box.append(badge(state),$("div","progress-copy",copy),meter);return box}
-function scenarioPanel(){const p=$("article","panel");p.id="scenarios";const lead=$("div","lead"),left=$("div");left.append($("h2","","场景与调用关系"),$("p","","展示接口依赖、数据传递和执行结论；无法执行的用户场景也会保留并说明原因"));lead.append(left);p.append(lead);if(!report.scenarios.length){p.append($("div","empty","未提供或推导场景"));return p}report.scenarios.forEach(sc=>{const s=section(`${sc.id} · ${sc.name}`);s.body.append($("p","",`${sc.origin==="requested"?"用户场景":"推导场景"} · ${sc.purpose||""}`),scenarioProgress(sc));if(sc.notes?.length){const note=$("div","scenario-note");note.append($("strong","","补充说明："),$("span","",sc.notes.map(primitive).join("；")));s.body.append(note)}const flow=$("div","steps");(sc.steps||[]).forEach((step,i)=>{if(i)flow.append($("div","arrow","→"));const verdict=stepVerdict(step),card=$("div",`step ${stepState(verdict)}`),head=$("div","step-head"),io=$("div","step-io"),input=$("div","step-zone input"),output=$("div","step-zone output"),outcome=$("div","step-outcome"),evidence=$("div","step-evidence");head.append($("strong","",`${step.index}. ${step.action}`),badge(verdict));input.append($("div","label","输入"),fieldList(step.consumes||[]));output.append($("div","label","输出"),fieldList(step.produces||[]));io.append(input,output);outcome.append($("div","label","裁决"),$("div","step-result",primitive(step.observed)),$("div","label","证据"));if(step.evidenceIds?.length)evidence.append(chipRow(step.evidenceIds,true));else evidence.append($("div","empty-evidence","无运行证据"));outcome.append(evidence);card.append(head,$("div","step-interface",step.interfaceId||""),io,outcome);flow.append(card)});s.body.append(flow);p.append(s.root)});return p}
-document.getElementById("title").textContent=`${report.meta.provider} API Debug Report`;
-document.getElementById("summary").textContent=report.meta.summary||"";
-[[report.interfaces.length,"接口"],[report.scenarios.length,"场景"],[report.findings.length,"发现"],[report.meta.status,"状态"]].forEach(([v,l])=>{const c=$("div","stat");c.append($("b","",String(v)),$("span","",l));document.getElementById("stats").append(c)});
-const pages=[{id:"overview",name:"总览",panel:overview()},...report.interfaces.map(i=>({id:i.id,name:i.name,panel:interfacePanel(i)})),{id:"scenarios",name:"场景与调用关系",panel:scenarioPanel()}];
-pages.forEach((page,i)=>{const b=$("button","tab"+(i===0?" active":""),page.name);b.dataset.target=page.id;b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.getElementById(page.id).classList.add("active");scrollTo({top:0})};document.getElementById("tabs").append(b);document.getElementById("panels").append(page.panel)});
-const footer=$("div","footer","报告内容来自结构化文档契约与脱敏运行证据。文档声明、实测结果和接入修订保持独立。");document.getElementById("panels").append(footer);
+const report = JSON.parse(document.getElementById("report-data").textContent);
+const verdictValues = new Set([
+  "PASS", "DOCUMENT_MISMATCH", "OBSERVED", "BLOCKED", "NOT_APPLICABLE", "NOT_EXECUTED"
+]);
+const displayStatuses = new Set([...verdictValues, "COMPLETE", "COMPLETE_WITH_LIMITATIONS", "INCOMPLETE"]);
+const $ = (tag, cls, text) => {
+  const node = document.createElement(tag);
+  if (cls) node.className = cls;
+  if (text !== undefined) node.textContent = text;
+  return node;
+};
+const empty = value =>
+  value == null || value === "" ||
+  (Array.isArray(value) && !value.length) ||
+  (typeof value === "object" && !Array.isArray(value) && !Object.keys(value).length);
+const pretty = value => typeof value === "string" ? value : JSON.stringify(value, null, 2);
+const short = (value, max = 120) => {
+  const text = typeof value === "string" ? value : JSON.stringify(value);
+  return text.length > max ? text.slice(0, max - 1) + "…" : text;
+};
+const primitive = value => {
+  if (value == null) return "—";
+  if (Array.isArray(value)) return value.map(item => short(item, 80)).join("、");
+  if (typeof value === "object") {
+    return Object.entries(value).map(([key, item]) => `${key}=${short(item, 100)}`).join("；");
+  }
+  return String(value);
+};
+const safeId = value => String(value || "item").replace(/[^A-Za-z0-9_-]+/g, "-");
+const badge = value => $("span", "badge " + (value || "NOT_EXECUTED"), value || "NOT_EXECUTED");
+const priorityBadge = value => $("span", "priority-badge " + value, value);
+
+function section(title) {
+  const root = $("section");
+  const body = $("div");
+  root.append($("h3", "", title), body);
+  return {root, body};
+}
+
+function formatRequired(value) {
+  if (value === true) return "是";
+  if (value === false) return "否";
+  return primitive(value);
+}
+
+function flatten(value, prefix = "", out = []) {
+  if (empty(value)) return out;
+  if (Array.isArray(value)) {
+    out.push([prefix || "范围", value.map(item => short(item, 100)).join("、")]);
+    return out;
+  }
+  if (typeof value !== "object") {
+    out.push([prefix || "值", short(value, 180)]);
+    return out;
+  }
+  Object.entries(value).forEach(([key, item]) => {
+    if (empty(item)) return;
+    const path = prefix ? `${prefix}.${key}` : key;
+    if (item && typeof item === "object" && !Array.isArray(item)) flatten(item, path, out);
+    else out.push([path, Array.isArray(item) ? item.map(v => short(v, 100)).join("、") : short(item, 180)]);
+  });
+  return out;
+}
+
+function kvList(rows) {
+  const body = $("div", "kv");
+  (rows || []).filter(([, value]) => !empty(value)).forEach(([key, value]) => {
+    const row = $("div", "kv-row");
+    const result = $("div", "kv-value");
+    if (typeof value === "string" && displayStatuses.has(value)) result.append(badge(value));
+    else result.textContent = primitive(value);
+    row.append($("div", "kv-key", key), result);
+    body.append(row);
+  });
+  if (!body.children.length) body.append($("div", "empty", "未记录"));
+  return body;
+}
+
+function kvCard(title, rows, wide = false) {
+  const card = $("div", "card" + (wide ? " wide" : ""));
+  card.append($("h4", "", title), kvList(rows));
+  return card;
+}
+
+function listCard(title, items) {
+  const card = $("div", "card");
+  card.append($("h4", "", title));
+  if (!items?.length) {
+    card.append($("div", "empty", "无"));
+    return card;
+  }
+  const list = $("ul", "compact-list");
+  items.forEach(item => list.append($("li", "", primitive(item))));
+  card.append(list);
+  return card;
+}
+
+function docsCard(docs) {
+  const card = $("div", "card");
+  card.append($("h4", "", "第三方文档地址"));
+  if (!docs?.length) {
+    card.append($("div", "empty", "未记录"));
+    return card;
+  }
+  const list = $("div", "doc-links");
+  docs.forEach(doc => {
+    const url = doc?.url || primitive(doc);
+    if (/^https?:\/\//i.test(url)) {
+      const link = $("a", "", url);
+      link.href = url;
+      link.target = "_blank";
+      link.rel = "noreferrer";
+      list.append(link);
+    } else {
+      list.append($("code", "", url));
+    }
+  });
+  card.append(list);
+  return card;
+}
+
+function scopeCard(scope) {
+  const rows = (scope || []).map(item => [
+    item.methodHint || "API",
+    [item.requestedName, item.pathHint].filter(Boolean).join(" · ")
+  ]);
+  return kvCard("本次接口范围", rows);
+}
+
+function requestedScenarioCard(scenarios) {
+  const names = (scenarios || []).map(item =>
+    typeof item === "string" ? item : item?.name || item?.requestedScenario
+  ).filter(Boolean);
+  const card = $("div", "card");
+  card.append($("h4", "", `测试场景${names.length ? `（${names.length}）` : ""}`));
+  if (!names.length) {
+    card.append($("div", "empty", "未提供"));
+    return card;
+  }
+  const list = $("ul", "scenario-name-list");
+  names.forEach(name => list.append($("li", "", name)));
+  card.append(list);
+  return card;
+}
+
+function terminologyCard(terms) {
+  const card = $("div", "card wide");
+  const provider = terms?.provider || {};
+  const rows = [
+    ["提供方规范名称", provider.canonical],
+    ["提供方别名", (provider.aliases || []).join("、")],
+    ...Object.entries(terms?.businessTerms || {}).map(([key, value]) => [key, value])
+  ];
+  card.append($("h4", "", "术语与协议字面值"), kvList(rows));
+  const literals = terms?.protocolLiterals || [];
+  if (literals.length) {
+    const list = $("div", "literal-list");
+    literals.forEach(item => list.append($("code", "", item)));
+    card.append(list);
+  }
+  return card;
+}
+
+function questionCard(items) {
+  const card = $("div", "card");
+  const body = $("div", "question-groups");
+  const definitions = {P0: "必须确认", P1: "建议确认", P2: "允许忽略"};
+  card.append($("h4", "", "外部待确认事项"));
+  ["P0", "P1", "P2"].forEach(priority => {
+    const rows = (items || []).filter(item => item?.priority === priority);
+    if (!rows.length) return;
+    const group = $("div", "question-group");
+    const head = $("div", "question-head");
+    const list = $("ul", "question-list");
+    head.append(priorityBadge(priority), $("span", "", definitions[priority]));
+    rows.forEach(item => list.append($("li", "", item.question)));
+    group.append(head, list);
+    body.append(group);
+  });
+  if (!body.children.length) body.append($("div", "empty", "无"));
+  card.append(body);
+  return card;
+}
+
+const evidenceTargets = new Map();
+function registerEvidence(ids, panelId, elementId) {
+  (ids || []).forEach(id => {
+    if (!evidenceTargets.has(id)) evidenceTargets.set(id, {panelId, elementId});
+  });
+}
+
+(report.interfaces || []).forEach(item => {
+  (item.cases || []).forEach(testCase => {
+    registerEvidence(testCase.evidenceIds, item.id, `case-${safeId(item.id)}-${safeId(testCase.id)}`);
+  });
+  ["signing", "encryption"].forEach(dimension => {
+    const value = item[dimension] || {};
+    ["localVerification", "interoperability"].forEach(part => {
+      const record = value[part] || {};
+      registerEvidence(
+        record.evidenceIds,
+        item.id,
+        `crypto-${safeId(item.id)}-${dimension}-${part}`
+      );
+    });
+  });
+});
+
+function evidenceRow(ids) {
+  const row = $("div", "evidence-row");
+  (ids || []).forEach(id => {
+    const target = evidenceTargets.get(id);
+    if (!target) {
+      row.append($("span", "evidence-text", id));
+      return;
+    }
+    const link = $("a", "evidence-link", id);
+    link.href = `#${encodeURIComponent(target.panelId)}`;
+    link.dataset.targetPanel = target.panelId;
+    link.dataset.targetElement = target.elementId;
+    link.onclick = event => {
+      event.preventDefault();
+      activate(target.panelId, true);
+      requestAnimationFrame(() => {
+        const node = document.getElementById(target.elementId);
+        if (node?.tagName === "DETAILS") node.open = true;
+        node?.scrollIntoView({block: "center"});
+      });
+    };
+    row.append(link);
+  });
+  return row;
+}
+
+function findingBlock(finding) {
+  const priority = finding.severity || "P2";
+  const mismatch = finding.category === "DOCUMENT_MISMATCH";
+  const root = $("div", `finding ${priority}`);
+  const head = $("div", "finding-head");
+  head.append(priorityBadge(priority), badge(finding.category), $("strong", "", finding.interfaceId || ""));
+  const documented = $("div", "diff-line");
+  const observed = $("div", "diff-line");
+  const correction = $("div", "diff-line");
+  documented.append(
+    $("div", "diff-label", "文档声明"),
+    $(mismatch ? "del" : "span", mismatch ? "doc-old" : "", primitive(finding.documented))
+  );
+  observed.append($("div", "diff-label", "实测结果"), $("span", "observed-new", primitive(finding.observed)));
+  correction.append(
+    $("div", "diff-label", "接入修订"),
+    $(mismatch ? "ins" : "span", mismatch ? "correction-new" : "", primitive(finding.correction))
+  );
+  root.append(head, documented, observed, correction);
+  if (finding.evidenceIds?.length) root.append(evidenceRow(finding.evidenceIds));
+  return root;
+}
+
+const cryptoLabels = {
+  source: "文档来源",
+  algorithm: "算法",
+  key: "密钥",
+  keySource: "密钥来源",
+  message: "参与计算的数据",
+  encoding: "字符 / 字节规则",
+  output: "输出格式",
+  signatureLocation: "签名位置",
+  comparison: "比较方式",
+  transport: "传输加密",
+  fieldEncryption: "字段加密",
+  mode: "模式",
+  padding: "填充",
+  iv: "IV",
+  nonce: "Nonce",
+  tag: "认证标签",
+  aad: "AAD"
+};
+
+function cryptoRows(value) {
+  return flatten(value).map(([key, val]) => [cryptoLabels[key] || key, val]);
+}
+
+function cryptoPane(item, dimension, part, title, data, official = false) {
+  const pane = $("div", "crypto-pane");
+  pane.id = `crypto-${safeId(item.id)}-${dimension}-${part}`;
+  const head = $("div", "crypto-pane-head");
+  head.append($("strong", "", title));
+  if (!official && data?.verdict) head.append(badge(data.verdict));
+  pane.append(head);
+  if (empty(data)) {
+    pane.append($("div", "empty", "未记录"));
+    return pane;
+  }
+  if (official) {
+    pane.append(kvList(cryptoRows(data)));
+    return pane;
+  }
+  pane.append(kvList([
+    ["运行环境", data.runtime],
+    ["测试向量", data.testVector],
+    ["实测结果", data.observed]
+  ]));
+  if (data.evidenceIds?.length) pane.append(evidenceRow(data.evidenceIds));
+  if (data.code) {
+    const details = $("details", "crypto-code");
+    details.append($("summary", "", "查看可执行代码"), Object.assign($("pre"), {textContent: data.code}));
+    pane.append(details);
+  }
+  return pane;
+}
+
+function cryptoSection(item, dimension, title, value) {
+  const root = $("div", "crypto-section");
+  root.append($("h5", "crypto-section-title", title));
+  const grid = $("div", "crypto-grid");
+  grid.append(
+    cryptoPane(item, dimension, "official", "官方说明", value.official, true),
+    cryptoPane(item, dimension, "localVerification", "本地代码实测", value.localVerification),
+    cryptoPane(item, dimension, "interoperability", "真实第三方互操作", value.interoperability)
+  );
+  root.append(grid);
+  return root;
+}
+
+function compactCryptoRow(label, value) {
+  const row = $("div", "crypto-inline");
+  const result = $("div", "crypto-inline-value");
+  const rows = flatten(value);
+  const status = value?.verdict || (displayStatuses.has(value?.fieldEncryption) ? value.fieldEncryption : null);
+  if (status) result.append(badge(status));
+  const description = rows
+    .filter(([key]) => !["verdict", "fieldEncryption"].includes(key))
+    .map(([key, item]) => `${cryptoLabels[key] || key}：${item}`)
+    .join("；");
+  if (description) result.append($("span", "", description));
+  if (!result.children.length) result.append($("span", "muted", "未记录"));
+  row.append($("div", "crypto-inline-label", label), result);
+  return row;
+}
+
+function cryptographyCard(item) {
+  const structured = Boolean(item.signing?.official || item.encryption?.official);
+  const card = $("div", "card crypto-card");
+  card.append($("h4", "", "密码学实现与验证"));
+  if (!structured) {
+    card.append(
+      compactCryptoRow("签名 / 验签", item.signing),
+      compactCryptoRow("加密 / 解密", item.encryption)
+    );
+    return card;
+  }
+  if (item.signing?.official) card.append(cryptoSection(item, "signing", "签名 / 验签", item.signing));
+  else card.append(compactCryptoRow("签名 / 验签", item.signing));
+  if (item.encryption?.official) card.append(cryptoSection(item, "encryption", "加密 / 解密", item.encryption));
+  else card.append(compactCryptoRow("加密 / 解密", item.encryption));
+  return card;
+}
+
+function constraintCell(row) {
+  const cell = $("div");
+  const type = $("div", "constraint-line");
+  const required = $("div", "constraint-line");
+  type.append($("span", "constraint-label", "类型 "), $("span", "", primitive(row.type)));
+  required.append($("span", "constraint-label", "必填 "), $("span", "", formatRequired(row.required)));
+  cell.append(type, required);
+  if (row.criticalFieldCategory || row.probeDimensions?.length) {
+    const probe = $("div", "critical-probe");
+    probe.append(
+      $("strong", "", row.criticalFieldCategory || "重点字段"),
+      $("span", "", (row.probeDimensions || []).join(" · ") || "未记录探测维度")
+    );
+    cell.append(probe);
+  }
+  return cell;
+}
+
+function rowVerdict(row) {
+  return verdictValues.has(row?.verdict) ? row.verdict : "NOT_EXECUTED";
+}
+
+function fieldCell(row, key, kind) {
+  const verdict = rowVerdict(row);
+  const cell = $("td");
+  if (key === "field") {
+    const head = $("div", "field-head");
+    head.append($("code", "field-name", primitive(kind === "error" ? row.code : row.field)), badge(verdict));
+    cell.append(head);
+    return cell;
+  }
+  if (key === "constraint") {
+    cell.append(constraintCell(row));
+    return cell;
+  }
+  const value = row[key];
+  if (empty(value)) {
+    cell.textContent = "—";
+  } else if (key === "documented" && verdict === "DOCUMENT_MISMATCH") {
+    cell.append($("del", "doc-old", primitive(value)));
+  } else if (key === "observed") {
+    cell.append($("span", verdict === "NOT_EXECUTED" ? "muted" : "observed-new", primitive(value)));
+  } else if (key === "correction" && verdict === "DOCUMENT_MISMATCH") {
+    cell.append($("ins", "correction-new", primitive(value)));
+  } else {
+    cell.append($("span", "", primitive(value)));
+  }
+  if (key === "observed" && row.evidenceIds?.length) {
+    const evidence = $("div", "cell-evidence");
+    evidence.append(evidenceRow(row.evidenceIds));
+    cell.append(evidence);
+  }
+  if (key === "correction" && row.notes?.length) {
+    cell.append($("div", "cell-note", row.notes.map(primitive).join("；")));
+  }
+  return cell;
+}
+
+function tableFilterMatch(verdict, filter) {
+  if (filter === "changes") return verdict === "DOCUMENT_MISMATCH";
+  if (filter === "observed") return ["PASS", "DOCUMENT_MISMATCH", "OBSERVED"].includes(verdict);
+  if (filter === "blocked") return verdict === "BLOCKED";
+  if (filter === "not-executed") return verdict === "NOT_EXECUTED";
+  return true;
+}
+
+function dataTable(rows, kind = "field") {
+  if (!rows?.length) return $("div", "empty", "无记录");
+  const block = $("div", "table-block");
+  const tools = $("div", "table-tools");
+  const filters = [
+    ["all", "全部"],
+    ["changes", "仅修订"],
+    ["observed", "已实测"],
+    ["blocked", "阻塞"],
+    ["not-executed", "未执行"]
+  ];
+  let activeFilter = "all";
+  const search = $("input", "table-search");
+  search.type = "search";
+  search.placeholder = kind === "error" ? "搜索错误码或条件" : "搜索字段";
+  search.setAttribute("aria-label", search.placeholder);
+  const count = $("span", "table-count");
+  const buttons = filters.map(([value, label], index) => {
+    const button = $("button", "filter-button" + (index === 0 ? " active" : ""), label);
+    button.type = "button";
+    button.dataset.filter = value;
+    button.setAttribute("aria-pressed", index === 0 ? "true" : "false");
+    tools.append(button);
+    return button;
+  });
+  tools.append(search, count);
+
+  const wrap = $("div", "table-wrap");
+  const table = $("table");
+  const colgroup = $("colgroup");
+  const columns = kind === "error"
+    ? [["field", "错误码 / 条件", "16%"], ["documented", "文档声明", "28%"], ["observed", "实测结果", "28%"], ["correction", "接入修订", "28%"]]
+    : [["field", "字段", "16%"], ["constraint", "约束", "16%"], ["documented", "文档声明", "23%"], ["observed", "实测结果", "23%"], ["correction", "接入修订", "22%"]];
+  columns.forEach(([, , width]) => {
+    const col = $("col");
+    col.style.width = width;
+    colgroup.append(col);
+  });
+  const head = $("thead");
+  const headRow = $("tr");
+  columns.forEach(([, label]) => headRow.append($("th", "", label)));
+  head.append(headRow);
+  const body = $("tbody");
+  const rowNodes = rows.map(row => {
+    const tr = $("tr", rowVerdict(row) === "DOCUMENT_MISMATCH" ? "mismatch-row" : "");
+    tr.dataset.verdict = rowVerdict(row);
+    tr.dataset.search = JSON.stringify(row).toLowerCase();
+    columns.forEach(([key]) => tr.append(fieldCell(row, key, kind)));
+    body.append(tr);
+    return tr;
+  });
+  table.append(colgroup, head, body);
+  wrap.append(table);
+
+  function applyFilter() {
+    const query = search.value.trim().toLowerCase();
+    let visible = 0;
+    rowNodes.forEach(row => {
+      const matches = tableFilterMatch(row.dataset.verdict, activeFilter) &&
+        (!query || row.dataset.search.includes(query));
+      row.hidden = !matches;
+      if (matches) visible += 1;
+    });
+    count.textContent = `${visible} / ${rows.length}`;
+  }
+
+  buttons.forEach(button => {
+    button.onclick = () => {
+      activeFilter = button.dataset.filter;
+      buttons.forEach(item => {
+        const active = item === button;
+        item.classList.toggle("active", active);
+        item.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+      applyFilter();
+    };
+  });
+  search.oninput = applyFilter;
+  applyFilter();
+  block.append(tools, wrap);
+  return block;
+}
+
+function urlPath(url) {
+  try {
+    const parsed = new URL(url);
+    return parsed.pathname + parsed.search;
+  } catch {
+    return url || "—";
+  }
+}
+
+function rawMessages(item) {
+  const root = $("div", "raw-block");
+  const pair = $("div", "raw-pair");
+  const request = $("div", "raw-message");
+  const response = $("div", "raw-message");
+  request.append($("div", "raw-title", "完整脱敏 Request"), Object.assign($("pre"), {textContent: pretty(item.request)}));
+  response.append($("div", "raw-title", "完整脱敏 Response"), Object.assign($("pre"), {textContent: pretty(item.response)}));
+  pair.append(request, response);
+  root.append(pair);
+  return root;
+}
+
+function claimBlock(item) {
+  const mismatch = item.verdict === "DOCUMENT_MISMATCH";
+  const block = $("div", "case-claim");
+  const documented = $("div", "diff-line");
+  const observed = $("div", "diff-line");
+  documented.append(
+    $("div", "diff-label", "文档声明"),
+    $(mismatch ? "del" : "span", mismatch ? "doc-old" : "", primitive(item.documented))
+  );
+  observed.append(
+    $("div", "diff-label", "实测结果"),
+    $("span", item.verdict === "BLOCKED" ? "" : "observed-new", primitive(item.observed))
+  );
+  block.append(documented, observed);
+  if (item.evidenceIds?.length) block.append(evidenceRow(item.evidenceIds));
+  return block;
+}
+
+function caseList(item) {
+  if (!item.cases?.length) return $("div", "empty", "没有执行记录");
+  const root = $("div");
+  item.cases.forEach(testCase => {
+    const details = $("details");
+    details.id = `case-${safeId(item.id)}-${safeId(testCase.id)}`;
+    const summary = $("summary");
+    const meta = $("span", "case-meta");
+    const httpStatus = testCase.response?.httpStatus || testCase.response?.status;
+    meta.append(
+      $("span", "http-status", httpStatus ? `HTTP ${httpStatus}` : "未执行"),
+      $("span", "", testCase.request?.method || ""),
+      $("span", "", urlPath(testCase.request?.url))
+    );
+    summary.append(
+      $("code", "", testCase.id || "CASE"),
+      $("span", "grow", testCase.name || "Unnamed"),
+      meta,
+      badge(testCase.verdict)
+    );
+    const detail = $("div", "detail");
+    detail.append(claimBlock(testCase), rawMessages(testCase));
+    details.append(summary, detail);
+    root.append(details);
+  });
+  return root;
+}
+
+function overviewPanel() {
+  const panel = $("article", "panel");
+  panel.id = "overview";
+  const environment = report.input?.environment || {};
+  const testData = environment.testData || {};
+  const callback = environment.callback || {};
+  const callbackStatus = Object.keys(callback).length
+    ? callback.urlRef === "[NOT_PROVIDED]" ? "未提供" : "已提供"
+    : "NOT_APPLICABLE";
+  const lead = $("div", "lead");
+  const leadText = $("div");
+  leadText.append(
+    $("h2", "", "执行总览"),
+    $("p", "", [report.meta.environment || environment.name, report.meta.generatedAt].filter(Boolean).join(" · "))
+  );
+  lead.append(leadText);
+  panel.append(lead);
+
+  let current = section("四元素输入");
+  const inputGrid = $("div", "grid");
+  inputGrid.append(
+    docsCard(report.input?.documentation),
+    kvCard("测试环境", [
+      ["环境", environment.name],
+      ["Base URL", environment.baseUrl],
+      ["生产环境", environment.constraints?.production === false ? "否" : "未确认"],
+      ["测试数据", [testData.country, testData.state, testData.lga].filter(Boolean).join(" / ")],
+      ["回调条件", callbackStatus]
+    ]),
+    scopeCard(report.input?.interfaceScope),
+    requestedScenarioCard(report.input?.requestedScenarios)
+  );
+  current.body.append(inputGrid);
+  panel.append(current.root);
+
+  current = section("术语");
+  current.body.append(terminologyCard(report.terminology));
+  panel.append(current.root);
+
+  current = section("关键发现");
+  if (report.findings?.length) report.findings.forEach(item => current.body.append(findingBlock(item)));
+  else current.body.append($("div", "empty", "没有关键发现"));
+  panel.append(current.root);
+
+  current = section("限制、外部沟通与副作用");
+  const closingGrid = $("div", "grid three");
+  closingGrid.append(
+    listCard("限制", report.limitations),
+    questionCard(report.questions),
+    listCard("测试副作用", (report.sideEffects || []).map(item => `${item.class} × ${item.count}：${item.detail || ""}`))
+  );
+  current.body.append(closingGrid);
+  panel.append(current.root);
+  return panel;
+}
+
+function interfacePanel(item) {
+  const panel = $("article", "panel");
+  panel.id = item.id;
+  const lead = $("div", "lead");
+  const leadText = $("div");
+  const endpoint = $("p", "endpoint-line");
+  endpoint.append($("span", "method", item.method || "API"), $("span", "endpoint-url", item.url || "—"));
+  leadText.append($("h2", "", item.name), endpoint);
+  lead.append(leadText);
+  panel.append(lead);
+
+  let current = section("接口契约");
+  const contractGrid = $("div", "grid");
+  contractGrid.append(
+    kvCard("接口说明", [["用途", item.description], ["方法", item.method], ["URL", item.url]]),
+    kvCard("鉴权", flatten(item.authentication)),
+    kvCard("支持机构 / 地域 / 币种", flatten(item.supportScope), true),
+    cryptographyCard(item)
+  );
+  current.body.append(contractGrid);
+  panel.append(current.root);
+
+  current = section("请求字段");
+  current.body.append(dataTable(item.requestFields, "field"));
+  panel.append(current.root);
+
+  current = section("响应字段");
+  current.body.append(dataTable(item.responseFields, "field"));
+  panel.append(current.root);
+
+  current = section("错误码");
+  current.body.append(dataTable(item.errorCodes, "error"));
+  panel.append(current.root);
+
+  current = section("实际请求与响应");
+  current.body.append(caseList(item));
+  panel.append(current.root);
+  return panel;
+}
+
+function stepState(verdict) {
+  if (verdict === "BLOCKED") return "blocked";
+  if (verdict === "NOT_EXECUTED") return "pending";
+  return "completed";
+}
+
+function scenarioProgress(scenario) {
+  const steps = scenario.steps || [];
+  const verdicts = steps.map(step => step.verdict);
+  const completed = verdicts.filter(value => !["BLOCKED", "NOT_EXECUTED"].includes(value)).length;
+  const blockedIndex = verdicts.indexOf("BLOCKED");
+  const pendingIndex = verdicts.indexOf("NOT_EXECUTED");
+  let state = scenario.verdict || "NOT_EXECUTED";
+  let progressCount = completed;
+  let copy = `已完成 ${completed}/${steps.length} 步`;
+  if (blockedIndex >= 0) {
+    const before = verdicts.slice(0, blockedIndex).filter(value => !["BLOCKED", "NOT_EXECUTED"].includes(value)).length;
+    const after = verdicts.slice(blockedIndex + 1).filter(value => !["BLOCKED", "NOT_EXECUTED"].includes(value)).length;
+    state = "BLOCKED";
+    progressCount = before;
+    copy = `卡在第 ${blockedIndex + 1} 步「${steps[blockedIndex].action}」；前置完成 ${before}/${steps.length} 步`;
+    if (after) copy += `；其后 ${after} 步有独立证据`;
+  } else if (pendingIndex >= 0) {
+    state = "NOT_EXECUTED";
+    copy = `已完成 ${completed}/${steps.length} 步；下一步为第 ${pendingIndex + 1} 步「${steps[pendingIndex].action}」`;
+  }
+  const root = $("div", `scenario-progress ${state}`);
+  const meter = $("div", "progress-meter");
+  const fill = $("span");
+  fill.style.width = `${steps.length ? Math.round(progressCount / steps.length * 100) : 0}%`;
+  meter.append(fill);
+  root.append(badge(state), $("div", "progress-copy", copy), meter);
+  return root;
+}
+
+function fieldList(items) {
+  const list = $("div", "field-list");
+  const values = (items || []).filter(item => !empty(item));
+  if (!values.length) {
+    list.append($("div", "field-empty", "—"));
+    return list;
+  }
+  values.forEach(item => list.append($("div", "field-item", primitive(item))));
+  return list;
+}
+
+function scenarioPanel() {
+  const panel = $("article", "panel");
+  panel.id = "scenarios";
+  const lead = $("div", "lead");
+  const leadText = $("div");
+  leadText.append(
+    $("h2", "", "场景与调用关系"),
+    $("p", "", "展示接口依赖、数据传递和执行结论；无法执行的用户场景仍保留")
+  );
+  lead.append(leadText);
+  panel.append(lead);
+  if (!report.scenarios?.length) {
+    panel.append($("div", "empty", "未提供或推导场景"));
+    return panel;
+  }
+
+  report.scenarios.forEach(scenario => {
+    const current = section(`${scenario.id} · ${scenario.name}`);
+    current.body.append(
+      $("p", "muted", `${scenario.origin === "requested" ? "用户场景" : "推导场景"} · ${scenario.purpose || ""}`),
+      scenarioProgress(scenario)
+    );
+    if (scenario.notes?.length) {
+      const note = $("div", "scenario-note");
+      note.append($("strong", "", "补充说明："), $("span", "", scenario.notes.map(primitive).join("；")));
+      current.body.append(note);
+    }
+    const flow = $("div", "steps");
+    (scenario.steps || []).forEach((step, index) => {
+      if (index) flow.append($("div", "arrow", "→"));
+      const verdict = step.verdict || "NOT_EXECUTED";
+      const card = $("div", `step ${stepState(verdict)}`);
+      const head = $("div", "step-head");
+      const input = $("div", "step-zone");
+      const output = $("div", "step-zone");
+      const outcome = $("div", "step-outcome");
+      head.append($("strong", "", `${step.index}. ${step.action}`), badge(verdict));
+      input.append($("div", "label", "输入"), fieldList(step.consumes));
+      output.append($("div", "label", "输出"), fieldList(step.produces));
+      outcome.append($("div", "label", "裁决"), $("div", "step-result", primitive(step.observed)), $("div", "label", "证据"));
+      outcome.append(step.evidenceIds?.length ? evidenceRow(step.evidenceIds) : $("div", "empty-evidence", "无运行证据"));
+      card.append(head, $("div", "step-interface", step.interfaceId || ""), input, output, outcome);
+      flow.append(card);
+    });
+    current.body.append(flow);
+    panel.append(current.root);
+  });
+  return panel;
+}
+
+document.getElementById("title").textContent = `${report.meta.provider} API Debug Report`;
+document.getElementById("summary").textContent = report.meta.summary || "";
+document.getElementById("overall-status").append(badge(report.meta.status));
+const caseCount = (report.interfaces || []).reduce((sum, item) => sum + (item.cases || []).length, 0);
+const mismatchCount = (report.findings || []).filter(item => item.category === "DOCUMENT_MISMATCH").length;
+const blockedCount = (report.findings || []).filter(item => item.category === "BLOCKED").length;
+[
+  [report.interfaces?.length || 0, "接口"],
+  [caseCount, "测试用例"],
+  [mismatchCount, "文档差异"],
+  [blockedCount, "阻塞项"]
+].forEach(([value, label]) => {
+  const stat = $("div", "stat");
+  stat.append($("b", "", String(value)), $("span", "", label));
+  document.getElementById("stats").append(stat);
+});
+
+const pages = [
+  {id: "overview", name: "总览", method: "HOME", kind: "fixed", panel: overviewPanel()},
+  ...(report.interfaces || []).map(item => ({
+    id: item.id,
+    name: item.name,
+    method: item.method || "API",
+    kind: "interface",
+    panel: interfacePanel(item)
+  })),
+  {id: "scenarios", name: "场景与调用关系", method: "FLOW", kind: "fixed", panel: scenarioPanel()}
+];
+const tabById = new Map();
+const panelById = new Map();
+
+function activate(id, updateHash = false) {
+  if (!panelById.has(id)) id = "overview";
+  tabById.forEach((tab, key) => {
+    const active = key === id;
+    tab.classList.toggle("active", active);
+    tab.setAttribute("aria-selected", active ? "true" : "false");
+    tab.tabIndex = active ? 0 : -1;
+  });
+  panelById.forEach((panel, key) => panel.classList.toggle("active", key === id));
+  if (updateHash) history.replaceState(null, "", `#${encodeURIComponent(id)}`);
+  window.scrollTo({top: 0});
+}
+
+pages.forEach(page => {
+  const button = $("button", "tab");
+  button.type = "button";
+  button.dataset.target = page.id;
+  button.dataset.kind = page.kind;
+  button.setAttribute("role", "tab");
+  button.setAttribute("aria-controls", page.id);
+  button.setAttribute("aria-selected", "false");
+  button.title = `${page.method} · ${page.name}`;
+  button.append($("span", "tab-method", page.method), $("span", "tab-name", page.name));
+  button.onclick = () => activate(page.id, true);
+  page.panel.id = page.id;
+  page.panel.dataset.panelId = page.id;
+  page.panel.setAttribute("role", "tabpanel");
+  page.panel.setAttribute("aria-label", page.name);
+  tabById.set(page.id, button);
+  panelById.set(page.id, page.panel);
+  document.getElementById("tabs").append(button);
+  document.getElementById("panels").append(page.panel);
+});
+
+document.getElementById("tabs").onkeydown = event => {
+  if (!["ArrowDown", "ArrowUp", "ArrowRight", "ArrowLeft", "Home", "End"].includes(event.key)) return;
+  const visible = [...tabById.values()].filter(tab => !tab.classList.contains("hidden"));
+  const current = visible.indexOf(document.activeElement);
+  if (current < 0) return;
+  event.preventDefault();
+  let next = current;
+  if (["ArrowDown", "ArrowRight"].includes(event.key)) next = (current + 1) % visible.length;
+  if (["ArrowUp", "ArrowLeft"].includes(event.key)) next = (current - 1 + visible.length) % visible.length;
+  if (event.key === "Home") next = 0;
+  if (event.key === "End") next = visible.length - 1;
+  visible[next].focus();
+  activate(visible[next].dataset.target, true);
+};
+
+document.getElementById("interface-search").oninput = event => {
+  const query = event.target.value.trim().toLowerCase();
+  tabById.forEach(tab => {
+    if (tab.dataset.kind !== "interface") return;
+    const hidden = Boolean(query && !tab.title.toLowerCase().includes(query));
+    tab.classList.toggle("hidden", hidden);
+  });
+};
+
+const initialHash = decodeURIComponent(location.hash.slice(1));
+activate(panelById.has(initialHash) ? initialHash : "overview", false);
+window.addEventListener("hashchange", () => {
+  const id = decodeURIComponent(location.hash.slice(1));
+  if (panelById.has(id)) activate(id, false);
+});
+
+const footer = $("div", "footer", "报告内容来自结构化文档契约与脱敏运行证据。文档声明、实测结果和接入修订保持独立。");
+document.getElementById("panels").append(footer);
 </script>
 </body>
 </html>

@@ -113,6 +113,25 @@ def validate_crypto_dimension(
             errors.append(f"{section_path}.code is required for executed local checks")
 
 
+def validate_contract_row(
+    row: Any, path: str, identity_key: str, errors: list[str]
+) -> None:
+    if not isinstance(row, dict):
+        errors.append(f"{path} must be an object")
+        return
+    if not row.get(identity_key):
+        errors.append(f"{path}.{identity_key} is required")
+    verdict = row.get("verdict")
+    if verdict not in VERDICTS:
+        errors.append(f"{path}.verdict is invalid")
+        return
+    executed = verdict in {"PASS", "DOCUMENT_MISMATCH", "OBSERVED"}
+    if executed and not row.get("evidenceIds"):
+        errors.append(f"{path}.evidenceIds is required for executed claims")
+    if verdict == "DOCUMENT_MISMATCH" and not row.get("correction"):
+        errors.append(f"{path}.correction is required for a document mismatch")
+
+
 def validate_data(data: dict[str, Any]) -> list[str]:
     errors: list[str] = []
     meta = data.get("meta", {})
@@ -155,6 +174,21 @@ def validate_data(data: dict[str, Any]) -> list[str]:
                     errors.append(
                         f"interfaces[{index}].cases[{case_index}] has invalid verdict"
                     )
+            for field_group in ("requestFields", "responseFields"):
+                for field_index, field in enumerate(interface.get(field_group, [])):
+                    validate_contract_row(
+                        field,
+                        f"interfaces[{index}].{field_group}[{field_index}]",
+                        "field",
+                        errors,
+                    )
+            for error_index, error_code in enumerate(interface.get("errorCodes", [])):
+                validate_contract_row(
+                    error_code,
+                    f"interfaces[{index}].errorCodes[{error_index}]",
+                    "code",
+                    errors,
+                )
             for field_index, field in enumerate(interface.get("requestFields", [])):
                 category = field.get("criticalFieldCategory")
                 if category is None:
@@ -195,6 +229,17 @@ def validate_data(data: dict[str, Any]) -> list[str]:
                     errors.append(
                         f"scenarios[{index}] {scenario.get('verdict')} requires a reason"
                     )
+            for step_index, step in enumerate(scenario.get("steps", [])):
+                step_path = f"scenarios[{index}].steps[{step_index}]"
+                verdict = step.get("verdict")
+                if verdict not in VERDICTS:
+                    errors.append(f"{step_path}.verdict is invalid")
+                if verdict in {"PASS", "DOCUMENT_MISMATCH", "OBSERVED"} and not step.get(
+                    "evidenceIds"
+                ):
+                    errors.append(
+                        f"{step_path}.evidenceIds is required for executed claims"
+                    )
 
         requested = input_data.get("requestedScenarios", [])
         requested_records = [
@@ -224,6 +269,17 @@ def validate_data(data: dict[str, Any]) -> list[str]:
             errors.append(f"questions[{index}] priority must be P0, P1, or P2")
         if not question.get("question"):
             errors.append(f"questions[{index}].question is required")
+    for index, finding in enumerate(data.get("findings", [])):
+        if finding.get("severity") not in QUESTION_PRIORITIES:
+            errors.append(f"findings[{index}].severity must be P0, P1, or P2")
+        if finding.get("category") not in VERDICTS:
+            errors.append(f"findings[{index}].category is invalid")
+        if finding.get("category") in {
+            "PASS",
+            "DOCUMENT_MISMATCH",
+            "OBSERVED",
+        } and not finding.get("evidenceIds"):
+            errors.append(f"findings[{index}].evidenceIds is required")
     visit_sensitive(data, "", errors)
     return errors
 
@@ -234,9 +290,13 @@ def validate_html(html: str, data: dict[str, Any]) -> list[str]:
         'id="report-data"',
         'id="tabs"',
         'id="panels"',
+        'id="interface-search"',
         "文档声明",
         "实测结果",
         "接入修订",
+        "仅修订",
+        "完整脱敏 Request",
+        "完整脱敏 Response",
     ):
         if marker not in html:
             errors.append(f"HTML missing marker: {marker}")
