@@ -56,7 +56,7 @@ https://github.com/AugustusHu/useless-skills/tree/main/skills/debug-third-party-
 3. 本次需要调试的接口范围。
 4. 希望验证的业务场景，可选。
 
-假设你将上述信息放入了Debug需求文档中，并放在了本地目录下：
+假设你将上述信息放入了Debug需求文档中，该文档在本地目录中：
 
 ```text
 /debug-third-party-api @通过弹窗选取<Debug需求文件>
@@ -70,9 +70,17 @@ https://github.com/AugustusHu/useless-skills/tree/main/skills/debug-third-party-
 
 ### 配置语雀 Token
 
-你需要打开终端来执行命令。配置后重启 Codex 才能读取到。注意不要把真实 Token 直接扔给 Codex ，否则一定会泄漏。
+#### macOS：让已安装的 Codex 桌面端读取
 
-macOS / Linux 当前会话：
+如果 Codex 是从访达或 Dock 启动的，可以为当前 macOS 登录会话设置：
+
+```bash
+launchctl setenv YUQUE_TOKEN '<your-token>'
+```
+
+#### 命令行方式配置
+
+macOS / Linux 当前会话生效：
 
 ```bash
 # 添加
@@ -82,13 +90,7 @@ export YUQUE_TOKEN='<your-token>'
 unset YUQUE_TOKEN
 ```
 
-用户根目录持久化：
-
-需要判断你的默认终端类型
-```bash
-echo $SHELL
-> /bin/zsh
-```
+如果不想每次都配置，可以选择在用户根目录持久化：
 
 ```bash
 # 添加
@@ -101,7 +103,13 @@ rm ~/.zshrc.bak
 unset YUQUE_TOKEN
 ```
 
-使用 bash 时，将 `~/.zshrc` 换成 `~/.bashrc`。
+默认终端使用 bash 时，将 `~/.zshrc` 换成 `~/.bashrc`。
+
+如何判断你的默认终端
+```bash
+echo $SHELL
+> /bin/zsh
+```
 
 ## 如何更新
 
