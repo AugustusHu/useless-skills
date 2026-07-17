@@ -17,6 +17,9 @@ https://github.com/AugustusHu/useless-skills/tree/main/skills/debug-third-party-
 ```text
 使用 $skill-installer 安装这个 Skill：
 https://github.com/AugustusHu/useless-skills/tree/main/skills/debug-third-party-api
+
+如果默认下载遇到本机 SSL 证书错误，请改用安装器的 Git 模式，
+不要关闭 TLS 校验。
 ```
 
 Codex 会下载并安装到 `~/.codex/skills/debug-third-party-api`。安装完成后，从下一轮对话开始使用；如果没有出现，重启 Codex。
@@ -172,6 +175,8 @@ https://github.com/AugustusHu/useless-skills/tree/main/skills/debug-third-party-
 
 请用 GitHub 最新版本替换本机现有安装，只处理
 ~/.codex/skills/debug-third-party-api；完成后验证 Skill 结构并告诉我结果。
+如果默认下载遇到本机 SSL 证书错误，请改用安装器的 Git 模式，
+不要关闭 TLS 校验。
 ```
 
 `$skill-installer` 不会直接覆盖同名目录，因此更新操作会先替换旧安装，再重新下载。上面的提示词已经把允许替换的范围限制在这个 Skill，不应影响其他 Skill。更新从下一轮对话开始生效；未生效时重启 Codex。

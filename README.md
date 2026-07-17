@@ -13,6 +13,9 @@
 ```text
 使用 $skill-installer 安装这个 Skill：
 https://github.com/AugustusHu/useless-skills/tree/main/skills/debug-third-party-api
+
+如果默认下载遇到本机 SSL 证书错误，请改用安装器的 Git 模式，
+不要关闭 TLS 校验。
 ```
 
 具体使用和更新方式见对应 Skill 的 README。
