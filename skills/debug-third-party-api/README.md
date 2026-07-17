@@ -4,7 +4,7 @@
 
 ## 如何使用
 
-### 本地安装
+### 项目级别安装
 
 把以下提示交给 Codex：
 
@@ -12,15 +12,21 @@
 使用 $skill-installer，把这个 Skill 安装到当前项目的
 .agents/skills/debug-third-party-api：
 https://github.com/AugustusHu/useless-skills/tree/main/skills/debug-third-party-api
+
+如果默认下载遇到本机 SSL 证书错误，请改用安装器的 Git 模式，
+不要关闭 TLS 校验。
 ```
 
 本地安装只对当前项目生效。
 
-### 全局安装
+### 用户全局安装
 
 ```text
 使用 $skill-installer，全局安装这个 Skill：
 https://github.com/AugustusHu/useless-skills/tree/main/skills/debug-third-party-api
+
+如果默认下载遇到本机 SSL 证书错误，请改用安装器的 Git 模式，
+不要关闭 TLS 校验。
 ```
 
 全局安装对所有项目生效。安装后从下一轮对话开始可用；未出现时重启 Codex。
@@ -32,35 +38,39 @@ https://github.com/AugustusHu/useless-skills/tree/main/skills/debug-third-party-
 全局：~/.codex/skills/debug-third-party-api/
 ```
 
-目录结构见文末；`SKILL.md` 必须直接位于 `debug-third-party-api` 目录中。
-
-安装或更新时若默认下载遇到 SSL 证书错误，改用安装器的 Git 模式，不要关闭 TLS 校验。
+你想使用WorkBuddy等其他Agent？skill本身并不绑定环境，把地址扔给Agent自己安装即可。为了效果最佳，推荐 Codex
 
 ### 运行条件
 
 - Codex 桌面端、CLI 或 IDE 扩展。
 - Python 3.10+。
 - 读取语雀私有文档时需要 `YUQUE_TOKEN`。
-- 测试回调时需要可接收回调的地址。
 - 供应商指定 SDK 或密码学算法时需要相应依赖。
 
 ### 发起调试
 
-读取本地需求文件：
+开始前提供：
+
+1. 第三方文档地址。
+2. 测试环境地址、测试凭据和必要测试数据。
+3. 本次需要调试的接口范围。
+4. 希望验证的业务场景，可选。
+
+假设你将上述信息放入了Debug需求文档中，并放在了本地目录下：
 
 ```text
-使用 $debug-third-party-api，读取这个本地需求文件并执行调试：
-<需求文件绝对路径>
+/debug-third-party-api @通过弹窗选取<Debug需求文件>
 ```
 
-读取在线需求文档：
+读取在线需求文档（需要先配置语雀 Token）：
 
 ```text
-使用 $debug-third-party-api，读取这个链接并执行调试：
-<需求文档链接>
+/debug-third-party-api <需求文档链接>
 ```
 
 ### 配置语雀 Token
+
+你需要打开终端来执行命令。配置后重启 Codex 才能读取到。注意不要把真实 Token 直接扔给 Codex ，否则一定会泄漏。
 
 macOS / Linux 当前会话：
 
@@ -72,7 +82,13 @@ export YUQUE_TOKEN='<your-token>'
 unset YUQUE_TOKEN
 ```
 
-用户根目录持久化（zsh）：
+用户根目录持久化：
+
+需要判断你的默认终端类型
+```bash
+echo $SHELL
+> /bin/zsh
+```
 
 ```bash
 # 添加
@@ -86,8 +102,6 @@ unset YUQUE_TOKEN
 ```
 
 使用 bash 时，将 `~/.zshrc` 换成 `~/.bashrc`。
-
-配置后重启 Codex。不要把真实 Token 写入公开仓库。
 
 ## 如何更新
 
@@ -111,7 +125,7 @@ https://github.com/AugustusHu/useless-skills/tree/main/skills/debug-third-party-
 ~/.codex/skills/debug-third-party-api，不要修改其他 Skill。
 ```
 
-GitHub `main` 是发布源。更新后从下一轮对话开始生效；未出现时重启 Codex。
+GitHub `main` 是发布源。更新后从下一轮对话开始生效；Skill命令未出现时重启 Codex。
 
 ## 如何卸载
 
@@ -130,20 +144,6 @@ GitHub `main` 是发布源。更新后从下一轮对话开始生效；未出现
 ```
 
 手动卸载时，删除对应目录即可。卸载后重新开启任务；仍然出现时重启 Codex。
-
-## Skill 能力
-
-- 读取网页、本地文件和语雀文档中的调试需求。
-- 实际调用测试环境，核对接口字段、请求、响应和错误行为。
-- 标注文档错误、实测差异和建议接入方式。
-- 验证鉴权、签名、验签、加密和解密算法。
-- 探测金额、手机号、账户号、账户名等金融关键字段。
-- 核对日期格式、时区及时间戳类型和精度。
-- 验证下单、查询、退款、回调、重发等跨接口场景。
-- 展示支持范围、阻塞原因和外部待确认事项。
-- 生成一个接口一个页签的 HTML 报告，并隐藏凭据和个人信息。
-
-仅在确认安全的测试环境中执行操作。真实资金、生产数据、外部通知或破坏性操作需要明确授权。
 
 ## 结构
 
