@@ -9,10 +9,10 @@
       --ink: #172033;
       --muted: #667085;
       --line: #dfe3ea;
-      --paper: #fff;
-      --soft: #f6f7f9;
-      --nav: #172033;
-      --nav-soft: #243047;
+      --paper: #fbfcfd;
+      --soft: #f5f7fa;
+      --nav: #182235;
+      --nav-soft: #253149;
       --blue: #245fbd;
       --blue-soft: #eef4fb;
       --green: #356b59;
@@ -35,9 +35,9 @@
     html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      background: #eef1f5;
+      background: #eef2f6;
       color: var(--ink);
-      font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+      font: 13.5px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
         "Microsoft YaHei", sans-serif;
     }
     button, input { font: inherit; }
@@ -50,27 +50,29 @@
       min-height: 100vh;
       margin: auto;
       background: var(--paper);
-      box-shadow: 0 0 32px #24334a14;
+      box-shadow: 0 0 28px #24334a12;
     }
     header {
-      padding: 24px 32px 20px;
-      color: #fff;
-      background: linear-gradient(118deg, #121b2e, #214675);
-    }
-    h1 { margin: 4px 0; font-size: 28px; line-height: 1.25; }
-    .eyebrow { color: #b9cefa; font-size: 11px; letter-spacing: .13em; }
-    .header-summary { max-width: 1040px; margin-top: 5px; color: #d7e0ef; }
-    .header-bottom {
       display: flex;
-      align-items: flex-end;
+      min-height: 58px;
+      align-items: center;
       justify-content: space-between;
       gap: 18px;
-      margin-top: 16px;
+      padding: 12px 24px;
+      color: #fff;
+      background: linear-gradient(110deg, #162238, #203a60);
+      border-bottom: 1px solid #ffffff10;
     }
-    .stats { display: flex; flex-wrap: wrap; gap: 18px; }
-    .stat { min-width: 72px; }
-    .stat b { display: block; font-size: 19px; line-height: 1.15; }
-    .stat span { color: #c9d4e6; font-size: 11px; }
+    h1 {
+      min-width: 0;
+      margin: 0;
+      overflow: hidden;
+      font-size: 20px;
+      font-weight: 680;
+      line-height: 1.3;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
     .layout {
       display: grid;
@@ -141,7 +143,7 @@
       white-space: nowrap;
     }
     .tab.hidden { display: none; }
-    main { min-width: 0; padding: 26px 32px 54px; }
+    main { min-width: 0; padding: 24px 30px 50px; background: var(--paper); }
     .panel { display: none; min-width: 0; }
     .panel.active { display: block; }
     .lead {
@@ -149,9 +151,9 @@
       align-items: flex-start;
       justify-content: space-between;
       gap: 18px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
-    .lead h2 { margin: 0; font-size: 24px; line-height: 1.3; }
+    .lead h2 { margin: 0; font-size: 23px; line-height: 1.3; letter-spacing: -.01em; }
     .lead p { margin: 4px 0 0; color: var(--muted); }
     .endpoint-line {
       display: flex;
@@ -170,12 +172,14 @@
       overflow-wrap: anywhere;
       font: 12px/1.5 "SFMono-Regular", Consolas, monospace;
     }
-    section { margin: 22px 0; scroll-margin-top: 14px; }
+    section { margin: 20px 0; scroll-margin-top: 14px; }
     section > h3 {
       margin: 0 0 11px;
-      padding-bottom: 6px;
+      padding: 0 0 7px 9px;
       border-bottom: 1px solid var(--line);
-      font-size: 17px;
+      border-left: 3px solid #9bb3d3;
+      font-size: 16px;
+      line-height: 1.25;
     }
     .grid {
       display: grid;
@@ -185,10 +189,11 @@
     .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .card {
       min-width: 0;
-      border: 1px solid var(--line);
+      border: 1px solid #e1e6ed;
       border-radius: 8px;
       padding: 13px 14px;
       background: #fff;
+      box-shadow: 0 1px 2px #17203308;
     }
     .card.wide { grid-column: 1 / -1; }
     .card h4 { margin: 0 0 8px; font-size: 14px; }
@@ -199,6 +204,31 @@
       text-transform: uppercase;
     }
     .muted { color: var(--muted); }
+    .overview-summary {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px;
+      align-items: center;
+      margin: 2px 0 18px;
+      border: 1px solid #dce4ee;
+      border-left: 3px solid #6f8fb9;
+      border-radius: 8px;
+      padding: 12px 14px;
+      background: linear-gradient(110deg, #fff, #f7f9fc);
+      box-shadow: 0 1px 2px #17203308;
+    }
+    .overview-copy .label { display: block; margin-bottom: 3px; }
+    .overview-copy p { max-width: 920px; margin: 0; color: #344054; }
+    .overview-metrics { display: flex; align-items: stretch; }
+    .overview-metric {
+      min-width: 76px;
+      padding: 0 12px;
+      border-left: 1px solid #e1e6ed;
+      text-align: center;
+    }
+    .overview-metric:first-child { border-left: 0; }
+    .overview-metric b { display: block; font-size: 17px; line-height: 1.2; }
+    .overview-metric span { color: var(--muted); font-size: 10px; white-space: nowrap; }
 
     .badge {
       display: inline-flex;
@@ -310,11 +340,12 @@
 
     .finding {
       margin: 8px 0;
-      border: 1px solid var(--line);
+      border: 1px solid #e1e6ed;
       border-left: 3px solid #aeb7c4;
       border-radius: 7px;
       padding: 11px 13px;
       background: #fff;
+      box-shadow: 0 1px 2px #17203308;
     }
     .finding.P0 { border-left-color: #ba6b64; }
     .finding.P1 { border-left-color: #c2a267; }
@@ -346,7 +377,7 @@
     .filter-button {
       border: 1px solid #d7dce4;
       border-radius: 5px;
-      padding: 5px 8px;
+      padding: 4px 8px;
       color: #4b5567;
       background: #fff;
       cursor: pointer;
@@ -362,14 +393,15 @@
       margin-left: auto;
       border: 1px solid #d7dce4;
       border-radius: 5px;
-      padding: 5px 8px;
+      padding: 4px 8px;
     }
     .table-count { color: var(--muted); font-size: 12px; }
     .table-wrap {
       max-height: min(70vh, 720px);
       overflow: auto;
-      border: 1px solid var(--line);
+      border: 1px solid #dce2ea;
       border-radius: 7px;
+      background: #fff;
       scrollbar-color: #cbd2dc transparent;
     }
     table { width: 100%; min-width: 920px; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
@@ -423,8 +455,10 @@
     details {
       margin: 8px 0;
       overflow: hidden;
-      border: 1px solid var(--line);
+      border: 1px solid #e1e6ed;
       border-radius: 7px;
+      background: #fff;
+      box-shadow: 0 1px 2px #17203308;
     }
     summary {
       display: flex;
@@ -603,13 +637,14 @@
       .card.wide { grid-column: auto; }
     }
     @media (max-width: 620px) {
-      header { padding: 20px 18px 17px; }
-      h1 { font-size: 23px; }
-      .header-bottom { align-items: flex-start; flex-direction: column; }
-      .stats { gap: 13px; }
+      header { min-height: 52px; padding: 10px 14px; }
+      h1 { font-size: 17px; }
       main { padding: 18px 12px 40px; }
       .lead { display: block; }
       .lead > .badge { margin-top: 8px; }
+      .overview-summary { grid-template-columns: 1fr; gap: 12px; }
+      .overview-metrics { display: grid; grid-template-columns: repeat(4, 1fr); }
+      .overview-metric { min-width: 0; padding: 0 6px; }
       .scenario-name-list { grid-template-columns: 1fr; }
       .diff-line { grid-template-columns: 1fr; gap: 1px; }
       .table-search { width: 100%; margin-left: 0; }
@@ -622,7 +657,6 @@
     @media print {
       body, .shell { background: #fff; box-shadow: none; }
       header { color: #111; background: #fff; border-bottom: 1px solid #bbb; }
-      .eyebrow, .header-summary, .stat span { color: #555; }
       .sidebar, .table-tools { display: none !important; }
       .layout { display: block; }
       main { padding: 0; }
@@ -642,13 +676,8 @@
 <body>
 <div class="shell">
   <header>
-    <div class="eyebrow">THIRD-PARTY API · DOCUMENTATION VS EVIDENCE</div>
     <h1 id="title"></h1>
-    <div class="header-summary" id="summary"></div>
-    <div class="header-bottom">
-      <div class="stats" id="stats"></div>
-      <div id="overall-status"></div>
-    </div>
+    <div id="overall-status"></div>
   </header>
   <div class="layout">
     <aside class="sidebar" aria-label="报告导航">
@@ -1253,6 +1282,26 @@ function overviewPanel() {
   lead.append(leadText);
   panel.append(lead);
 
+  const summaryBox = $("div", "overview-summary");
+  const summaryCopy = $("div", "overview-copy");
+  const summaryMetrics = $("div", "overview-metrics");
+  summaryCopy.append(
+    $("span", "label", "本次结论"),
+    $("p", "", report.meta.summary || "未记录执行摘要")
+  );
+  [
+    [report.interfaces?.length || 0, "接口"],
+    [caseCount, "测试用例"],
+    [mismatchCount, "文档差异"],
+    [blockedCount, "阻塞项"]
+  ].forEach(([value, label]) => {
+    const metric = $("div", "overview-metric");
+    metric.append($("b", "", String(value)), $("span", "", label));
+    summaryMetrics.append(metric);
+  });
+  summaryBox.append(summaryCopy, summaryMetrics);
+  panel.append(summaryBox);
+
   let current = section("四元素输入");
   const inputGrid = $("div", "grid");
   inputGrid.append(
@@ -1428,21 +1477,10 @@ function scenarioPanel() {
 }
 
 document.getElementById("title").textContent = `${report.meta.provider} API Debug Report`;
-document.getElementById("summary").textContent = report.meta.summary || "";
 document.getElementById("overall-status").append(badge(report.meta.status));
 const caseCount = (report.interfaces || []).reduce((sum, item) => sum + (item.cases || []).length, 0);
 const mismatchCount = (report.findings || []).filter(item => item.category === "DOCUMENT_MISMATCH").length;
 const blockedCount = (report.findings || []).filter(item => item.category === "BLOCKED").length;
-[
-  [report.interfaces?.length || 0, "接口"],
-  [caseCount, "测试用例"],
-  [mismatchCount, "文档差异"],
-  [blockedCount, "阻塞项"]
-].forEach(([value, label]) => {
-  const stat = $("div", "stat");
-  stat.append($("b", "", String(value)), $("span", "", label));
-  document.getElementById("stats").append(stat);
-});
 
 const pages = [
   {id: "overview", name: "总览", method: "HOME", kind: "fixed", panel: overviewPanel()},
