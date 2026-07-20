@@ -50,7 +50,7 @@ INTERFACE_KEYS = {
     "cases",
 }
 SENSITIVE_KEY = re.compile(
-    r"^(authorization|proxy[-_]?authorization|api[-_]?key|client[-_]?secret|"
+    r"^(authorization|proxy[-_]?authorization|api[-_]?key|client[-_]?id|client[-_]?secret|"
     r"password|private[-_]?key|access[-_]?token|refresh[-_]?token|"
     r"webhook[-_]?secret|secret|signature|x[-_].*signature)$",
     re.IGNORECASE,

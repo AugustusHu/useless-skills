@@ -48,6 +48,21 @@ Store one JSON object. Empty dimensions must be explicit rather than omitted.
 }
 ```
 
+## Side effects
+
+Record each externally visible test effect with the created resource IDs when available:
+
+```json
+{
+  "class": "TEST_CREATE",
+  "interfaceId": "create-resource",
+  "summary": "Created sandbox resources.",
+  "resourceIds": ["resource-1", "resource-2"]
+}
+```
+
+The report derives the count from `resourceIds`. Use `count` only when exact IDs cannot be retained.
+
 ## Field rows
 
 Use the same keys for request and response rows:

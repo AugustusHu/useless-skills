@@ -525,7 +525,29 @@
       gap: 12px;
     }
     .raw-message { min-width: 0; margin-top: 6px; }
-    .raw-title { margin: 0 0 4px; color: var(--muted); font-size: 10px; letter-spacing: .04em; text-transform: uppercase; }
+    .raw-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .raw-title { color: var(--muted); font-size: 10px; letter-spacing: .04em; text-transform: uppercase; }
+    .copy-raw-button {
+      display: grid;
+      width: 22px;
+      height: 22px;
+      place-items: center;
+      border: 0;
+      border-radius: 4px;
+      padding: 0;
+      color: #7f8a9a;
+      background: transparent;
+      cursor: pointer;
+    }
+    .copy-raw-button:hover { color: #344054; background: #f0f3f7; }
+    .copy-raw-button.copied { color: #176c4a; background: #e8f5ef; }
+    .copy-raw-button svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; }
     .raw-note {
       margin-top: 5px;
       padding-left: 9px;
@@ -773,6 +795,25 @@ const primitive = value => {
   return String(value);
 };
 const safeId = value => String(value || "item").replace(/[^A-Za-z0-9_-]+/g, "-");
+const copyText = async text => {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {}
+  const fallback = $("textarea");
+  fallback.value = text;
+  fallback.setAttribute("readonly", "");
+  fallback.style.position = "fixed";
+  fallback.style.opacity = "0";
+  document.body.append(fallback);
+  fallback.select();
+  let copied = false;
+  try { copied = document.execCommand("copy"); } catch {}
+  fallback.remove();
+  return copied;
+};
 const badge = value => $("span", "badge " + (value || "NOT_EXECUTED"), value || "NOT_EXECUTED");
 const priorityBadge = value => $("span", "priority-badge " + value, value);
 const probeOutcomeBadge = value => {
@@ -1373,7 +1414,20 @@ function rawMessages(item) {
     .replace(/\bbodyRaw\b/g, "原始请求报文字节")
     .replace(/\s*原始请求报文字节\s*/g, "原始请求报文字节");
   const appendMessage = (container, title, value) => {
-    container.append($("div", "raw-title", title), Object.assign($("pre"), {textContent: pretty(displayMessage(value))}));
+    const content = pretty(displayMessage(value));
+    const head = $("div", "raw-head");
+    const button = $("button", "copy-raw-button");
+    button.type = "button";
+    button.title = "复制报文";
+    button.setAttribute("aria-label", `复制 ${title}`);
+    button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>';
+    button.onclick = async () => {
+      if (!await copyText(content)) return;
+      button.classList.add("copied");
+      window.setTimeout(() => button.classList.remove("copied"), 1200);
+    };
+    head.append($("div", "raw-title", title), button);
+    container.append(head, Object.assign($("pre"), {textContent: content}));
     if (value?.redaction) container.append($("div", "raw-note", `脱敏说明：${displayRedaction(value.redaction)}`));
   };
   appendMessage(request, "完整脱敏 Request", item.request);
@@ -1496,10 +1550,14 @@ function overviewPanel() {
 
   current = section("限制、外部沟通与副作用");
   const closingGrid = $("div", "grid three");
+  const sideEffects = (report.sideEffects || []).map(item => {
+    const count = item.resourceIds?.length ?? item.count ?? 0;
+    return `${item.class || "UNCLASSIFIED"} × ${count}${item.summary ? `：${item.summary}` : ""}`;
+  });
   closingGrid.append(
     listCard("限制", report.limitations),
     questionCard(report.questions),
-    listCard("测试副作用", (report.sideEffects || []).map(item => `${item.class} × ${item.count}：${item.detail || ""}`))
+    listCard("测试副作用", sideEffects)
   );
   current.body.append(closingGrid);
   panel.append(current.root);
