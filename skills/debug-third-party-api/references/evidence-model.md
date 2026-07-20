@@ -72,9 +72,54 @@ Use the same keys for request and response rows:
   "field": "customerReference",
   "type": "string",
   "required": true,
+  "source": "Caller-generated per request",
   "verdict": "PASS",
-  "criticalFieldCategory": null,
-  "probeDimensions": [],
+  "criticalFieldCategory": "IDENTIFIER",
+  "probeDimensions": ["format", "uniqueness", "duplicateBehavior"],
+  "constraintEvidence": {
+    "format": {
+      "documented": "Official documentation does not declare a format.",
+      "observed": "ASCII and Unicode probes executed.",
+      "verdict": "OBSERVED",
+      "evidenceIds": ["E-001", "E-002"]
+    },
+    "length": {
+      "documented": "Official documentation does not declare a length.",
+      "observed": "Not executed: the accepted maximum remains unknown.",
+      "verdict": "NOT_EXECUTED",
+      "evidenceIds": []
+    },
+    "charset": {
+      "documented": "Official documentation does not declare a character set.",
+      "observed": "ASCII and Unicode probes executed.",
+      "verdict": "OBSERVED",
+      "evidenceIds": ["E-001", "E-002"]
+    },
+    "sourceGeneration": {
+      "documented": "Client-supplied reference.",
+      "observed": "The provider accepted a caller-generated value.",
+      "verdict": "PASS",
+      "evidenceIds": ["E-001"]
+    },
+    "uniqueness": {
+      "documented": "Client-supplied reference.",
+      "observed": "A duplicate reference created another resource.",
+      "verdict": "OBSERVED",
+      "evidenceIds": ["E-003"]
+    },
+    "duplicateBehavior": {
+      "documented": "Official documentation does not declare duplicate handling.",
+      "observed": "A duplicate reference created another resource.",
+      "verdict": "OBSERVED",
+      "evidenceIds": ["E-003"]
+    },
+    "reconciliation": {
+      "documented": "The response returns a provider resource ID.",
+      "observed": "The caller reference and provider ID were retained together.",
+      "verdict": "PASS",
+      "evidenceIds": ["E-001"]
+    }
+  },
   "documented": "Official claim",
   "documentSource": ["https://docs.provider.example/reference#customerReference"],
   "observed": "Runtime observation or Not executed",
@@ -84,15 +129,13 @@ Use the same keys for request and response rows:
 }
 ```
 
-Every request field, response field, and error-code row must have a non-empty `documented` value, at least one `documentSource`, and an explicit `verdict`. Preserve the official wording and constraints; when the source is silent, write an explicit absence and reference the pages searched. Use `NOT_EXECUTED` for a documented row that was not tested and `BLOCKED` only when an external condition specifically prevents that row's probe. Only `DOCUMENT_MISMATCH` means that the documented value is replaced in the report.
+Every request field and response field must have a non-empty `type` and an explicit `required` value. Request fields also require `source`; response fields require `action`. Every field and error-code row must have a non-empty `documented` value, at least one `documentSource`, and an explicit `verdict`. Preserve the official wording and constraints; when the source is silent, write an explicit absence and reference the pages searched. Use `NOT_EXECUTED` for a documented row that was not tested and `BLOCKED` only when an external condition specifically prevents that row's probe. Only `DOCUMENT_MISMATCH` means that the documented value is replaced in the report.
 
-For financial request fields, set `criticalFieldCategory` to `AMOUNT`, `PHONE`, `ACCOUNT_NUMBER`, or `ACCOUNT_NAME`, and list the tested constraints in `probeDimensions`.
+Every request field must contain `criticalFieldCategory`, using `null` only after deciding that no material profile applies. Material categories are `AMOUNT`, `PHONE`, `ACCOUNT_NUMBER`, `ACCOUNT_NAME`, `CARD`, `IDENTITY`, `INSTITUTION`, `IDENTIFIER`, `ENUM_ROUTING`, `DATETIME`, `TEXT`, and `CALLBACK_SECURITY`.
 
-- `AMOUNT` includes at least `minimum`, `maximum`, `unit`, and `format`.
-- `PHONE` includes at least `format` and `supportedCountries`.
-- `ACCOUNT_NUMBER` and `ACCOUNT_NAME` include at least `format`.
+For a material field, `constraintEvidence` must contain every dimension required by its profile in [test-strategy.md](test-strategy.md). Each dimension contains `documented`, `observed`, `verdict`, and `evidenceIds`. An executed verdict requires evidence; `BLOCKED` or `NOT_EXECUTED` requires a concrete reason in `observed`. `probeDimensions` lists only dimensions actually executed and must point to executed entries in `constraintEvidence`.
 
-Keep the results in the same request-field row. Use `documented`, `observed`, `correction`, and `evidenceIds` to summarize the independently executed probes. Dimensions blocked by a concrete missing external condition remain explicit in `observed`; do not create a separate financial-field report section.
+Keep all results in the same request-field row. The renderer summarizes the constraint dimensions in the existing constraint cell; `documented`, `observed`, `correction`, and `evidenceIds` remain the human-readable contract and evidence trail.
 
 ## Error-code rows
 

@@ -31,7 +31,7 @@ When a documentation link is on Yuque, fetch it with `scripts/yuque_doc.py read 
 - Explain authentication, signing, encryption, errors, support scope, limitations, and external questions.
 - Collect official institution, region, and currency support first. Show the complete declaration inline when practical; for large or dynamic catalogs, explain the official interface or document path used to retrieve them.
 - Where signing, verification, encryption, or decryption applies, separate the sourced official algorithm contract, executable local code verification, and real provider interoperability. Include a reusable code example in the default-collapsed detail. Never treat a local round trip as proof of provider compatibility.
-- Prioritize probes for critical request fields in financial APIs. Cover, at minimum: amount minimum/maximum, unit, and format; phone-number format and supported countries; account-number format; and account-name format. Extend this set when other fields can materially affect transaction validity or routing.
+- Identify material request fields before testing and preserve their constraint evidence in the existing field rows. Cover funds, contact and account data, cards, identity, institutions, identifiers and idempotency, routing enums, time, free text, callbacks, and cryptographic inputs when applicable. Every required constraint dimension needs an official statement or explicit official absence, an observation or concrete non-execution reason, a verdict, and evidence for executed claims.
 - Treat date/time fields as precision-sensitive. Verify the exact format and timezone; for timestamps, verify number vs string and seconds vs milliseconds.
 - Show useful cross-interface scenarios and data flow without claiming unobserved behavior.
 - Produce one self-contained HTML report with one tab per interface.
@@ -74,7 +74,7 @@ Use only these verdict terms:
 - `NOT_APPLICABLE` — the dimension does not apply.
 - `NOT_EXECUTED` — excluded by the user or unreachable after a failed prerequisite.
 
-The renderer and validator hard-gate required interface structure, per-interface success/failure probe coverage, report sections, requested-scenario coverage, verdict validity, financial probe dimensions, external-question priority, and secret hygiene.
+The renderer and validator hard-gate required interface structure, per-interface success/failure probe coverage, report sections, requested-scenario coverage, verdict validity, material-field classification and constraint evidence, external-question priority, and secret hygiene.
 
 Review the parts that still require judgment:
 

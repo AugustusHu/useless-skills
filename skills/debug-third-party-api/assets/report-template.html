@@ -1240,18 +1240,25 @@ function cryptographyCard(item) {
   return card;
 }
 
-function constraintCell(row) {
+function constraintCell(row, kind) {
   const cell = $("div");
   const type = $("div", "constraint-line");
   const required = $("div", "constraint-line");
+  const role = $("div", "constraint-line");
   type.append($("span", "constraint-label", "类型 "), $("span", "", primitive(row.type)));
   required.append($("span", "constraint-label", "必填 "), $("span", "", formatRequired(row.required)));
-  cell.append(type, required);
-  if (row.criticalFieldCategory || row.probeDimensions?.length) {
+  const roleKey = kind === "response" ? "action" : "source";
+  const roleLabel = kind === "response" ? "用途 " : "来源 ";
+  role.append($("span", "constraint-label", roleLabel), $("span", "", primitive(row[roleKey])));
+  cell.append(type, required, role);
+  const dimensions = row.constraintEvidence
+    ? Object.keys(row.constraintEvidence)
+    : (row.probeDimensions || []);
+  if (row.criticalFieldCategory || dimensions.length) {
     const probe = $("div", "critical-probe");
     probe.append(
       $("strong", "", row.criticalFieldCategory || "重点字段"),
-      $("span", "", (row.probeDimensions || []).join(" · ") || "未记录探测维度")
+      $("span", "", dimensions.join(" · ") || "未记录约束维度")
     );
     cell.append(probe);
   }
@@ -1272,7 +1279,7 @@ function fieldCell(row, key, kind) {
     return cell;
   }
   if (key === "constraint") {
-    cell.append(constraintCell(row));
+    cell.append(constraintCell(row, kind));
     return cell;
   }
   const value = row[key];
@@ -1587,11 +1594,11 @@ function interfacePanel(item) {
   panel.append(current.root);
 
   current = section("请求字段");
-  current.body.append(dataTable(item.requestFields, "field"));
+  current.body.append(dataTable(item.requestFields, "request"));
   panel.append(current.root);
 
   current = section("响应字段");
-  current.body.append(dataTable(item.responseFields, "field"));
+  current.body.append(dataTable(item.responseFields, "response"));
   panel.append(current.root);
 
   current = section("错误码");

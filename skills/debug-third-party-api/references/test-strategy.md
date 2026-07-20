@@ -23,22 +23,30 @@ Two probes are only the floor. Do not convert untested dimensions into broad con
 
 ## Official contract collection
 
-Before testing, collect the original official declaration for every request field, response field, and error code: name, type, requiredness, constraints, enums, examples, conditional rules, and exact source page or section. When the official material is silent or contradictory, record that fact with the pages searched; do not replace it with an inferred declaration.
+Before testing, collect the original official declaration for every request field, response field, and error code: name, type, requiredness, constraints, enums, examples, conditional rules, and exact source page or section. Also identify each request field's source or generation rule and each response field's integration action or mapping. When the official material is silent or contradictory, record that fact with the pages searched; do not replace it with an inferred declaration.
 
 Collect official institution, region, and currency support separately from runtime observations. Keep complete small catalogs inline. For large or dynamic catalogs, record the official list/query interface or documentation route, method, parameters, authentication, and usage instructions so the reader can retrieve the current data.
 
-## Financial critical fields
+## Material field constraints
 
-Identify material request fields before choosing cases. Mark applicable fields as `AMOUNT`, `PHONE`, `ACCOUNT_NUMBER`, or `ACCOUNT_NAME`, then probe each material constraint separately.
+Classify material request fields before choosing cases. A field is material when it can affect funds or units, provider acceptance, sensitive-data handling, idempotency or reconciliation, status or routing, or supported capability. Use the applicable profile and probe each dimension independently:
 
-- `AMOUNT`: minimum, maximum, unit or currency, representation unit, precision or scale, accepted format, zero/negative handling, and boundary behavior.
-- `PHONE`: accepted format, country-code handling, normalization, and supported countries.
-- `ACCOUNT_NUMBER`: length, character set, leading-zero handling, whitespace or separator handling, and provider-specific checksum or format when documented.
-- `ACCOUNT_NAME`: length, character set, Unicode/local-language support, whitespace normalization, and case or punctuation handling when material.
+- `AMOUNT`: currency, unit, precision, rounding, minimum, maximum, inclusive boundary behavior, accepted format, and aggregate limits.
+- `PHONE`: format, country-code handling, length, character set, supported countries or operators, and normalization.
+- `ACCOUNT_NUMBER`: format, length, character set, checksum, leading-zero handling, separators, and masking or encryption.
+- `ACCOUNT_NAME`: format, minimum and maximum length, character set, punctuation, whitespace, Unicode or local language, matching behavior, and masking.
+- `CARD`: format, length, character set, validation, token or expiry semantics, and storage or logging restrictions.
+- `IDENTITY`: format, length, character set, type-dependent rules, date semantics, and masking or encryption.
+- `INSTITUTION`: format, length, provider mapping, source or binding, and supported scope.
+- `IDENTIFIER`: format, length, character set, source or generation, uniqueness, duplicate behavior, and internal-to-provider reconciliation.
+- `ENUM_ROUTING`: values, supported scope, explicit routing party, mapping, routing behavior, and unknown-value fallback.
+- `DATETIME`: format, timezone, number versus string, seconds versus milliseconds, precision, and expiry or timeout behavior.
+- `TEXT`: length, character set, special characters, Unicode, newlines, and escaping or injection behavior.
+- `CALLBACK_SECURITY`: format, HTTPS, domain policy, length, encoding, algorithm or canonicalization, and verification-failure behavior.
 
 Use a valid baseline and change one dimension at a time. In the supplied test environment, execute the write or lifecycle operation needed to establish each material boundary. Reuse the resulting test resource across related probes when that preserves independence, and use documented cleanup or reversal interfaces when they are part of the scope.
 
-Run constraint dimensions independently so one result does not mask another. Summarize them in the existing request-field row under documented, observed, correction, and evidence; do not create a separate financial-field report section.
+For every request field, explicitly decide whether a material profile applies; do not omit `criticalFieldCategory`. For a material field, record every required dimension in `constraintEvidence`. An untested or undocumented dimension remains explicit with its own verdict and reason. Summarize the result in the existing request-field row under documented, observed, correction, and evidence; do not create a separate constraint report.
 
 ## Scenario coverage
 
