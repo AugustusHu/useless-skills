@@ -26,7 +26,7 @@ Identify material request fields before choosing cases. Mark applicable fields a
 - `ACCOUNT_NUMBER`: length, character set, leading-zero handling, whitespace or separator handling, and provider-specific checksum or format when documented.
 - `ACCOUNT_NAME`: length, character set, Unicode/local-language support, whitespace normalization, and case or punctuation handling when material.
 
-Use a valid baseline and change one dimension at a time. Prefer validation-only endpoints and non-production environments. Do not create a real payment, payout, refund, or other financial side effect merely to discover a field boundary. When a probe is unsafe or externally blocked, record it as `BLOCKED` or `NOT_EXECUTED` with the reason instead of omitting it.
+Use a valid baseline and change one dimension at a time. In the supplied test environment, execute the write or lifecycle operation needed to establish each material boundary. Reuse the resulting test resource across related probes when that preserves independence, and use documented cleanup or reversal interfaces when they are part of the scope.
 
 Run constraint dimensions independently so one result does not mask another. Summarize them in the existing request-field row under documented, observed, correction, and evidence; do not create a separate financial-field report section.
 
@@ -63,10 +63,10 @@ Use an official test vector when available. Otherwise run a synthetic local vect
 - `DESTRUCTIVE`: cancel, delete, revoke.
 - `PRODUCTION_MUTATION`: any production write.
 
-Run production mutations only with explicit authorization. Treat financial and external-work tests as blocked until their sandbox behavior is clear. Record IDs and counts for every created test resource.
+Run production mutations only with explicit authorization. In a confirmed test environment, the interface scope authorizes every listed class except `PRODUCTION_MUTATION`; category alone is never a reason to skip a test. Record IDs and counts for every created test resource.
 
 ## Evidence quality
 
 Capture the exact method, URL, relevant headers, query, path, body, HTTP status, content type, correlation/request ID, response body, timestamp, and redaction note. Keep raw evidence out of the conversational context.
 
-Use `BLOCKED` when the missing condition is external. Use `NOT_EXECUTED` when the test was intentionally omitted. Neither is a failure.
+Use `BLOCKED` only when a named external condition prevents the call. Use `NOT_EXECUTED` only when the user excluded the test or a failed prerequisite made it unreachable. A financial, account-opening, state-changing, or externally visible test is not blocked merely because of its side-effect class.

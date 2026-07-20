@@ -80,7 +80,7 @@ For financial request fields, set `criticalFieldCategory` to `AMOUNT`, `PHONE`, 
 - `PHONE` includes at least `format` and `supportedCountries`.
 - `ACCOUNT_NUMBER` and `ACCOUNT_NAME` include at least `format`.
 
-Keep the results in the same request-field row. Use `documented`, `observed`, `correction`, and `evidenceIds` to summarize the independently executed probes. Unsafe or externally blocked dimensions remain explicit in `observed`; do not create a separate financial-field report section.
+Keep the results in the same request-field row. Use `documented`, `observed`, `correction`, and `evidenceIds` to summarize the independently executed probes. Dimensions blocked by a concrete missing external condition remain explicit in `observed`; do not create a separate financial-field report section.
 
 ## Error-code rows
 

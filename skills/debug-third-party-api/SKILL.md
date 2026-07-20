@@ -1,6 +1,6 @@
 ---
 name: debug-third-party-api
-description: Validate third-party API documentation against safe, real test-environment behavior and produce a consistent single-file HTML evidence report. Use when Codex must extract a documentation URL, executable test environment, interface scope, and optional scenarios; inspect official contracts; call in-scope APIs; compare documented and observed behavior; explain cross-interface flows; or report ambiguities, errors, signing, encryption, supported institutions, regions, and external questions.
+description: Validate third-party API documentation against real test-environment behavior and produce a consistent single-file HTML evidence report. Use when Codex must extract a documentation URL, executable test environment, interface scope, and optional scenarios; inspect official contracts; call in-scope APIs; compare documented and observed behavior; explain cross-interface flows; or report ambiguities, errors, signing, encryption, supported institutions, regions, and external questions.
 ---
 
 # Third-Party API Debug
@@ -16,14 +16,14 @@ Extract four elements before testing:
 3. Interface scope for this run.
 4. Requested test scenarios, when supplied.
 
-Normalize them using [input-contract.md](references/input-contract.md). Ask only for missing information that blocks a meaningful or safe result. Never persist credential values; retain references such as `ENV:CLIENT_SECRET`.
+Normalize them using [input-contract.md](references/input-contract.md). Ask only for missing information that prevents execution or a meaningful result. Never persist credential values; retain references such as `ENV:CLIENT_SECRET`.
 
 When a documentation link is on Yuque, fetch it with `scripts/yuque_doc.py read <url> --output <temporary.md> --meta-output <temporary.json>` and extract the four inputs from the saved Markdown. Use `pull` only when adjacent knowledge-base documents are relevant. Use `update` only when the user explicitly asks to write back to Yuque.
 
 ## Required outcomes
 
 - Establish the documented contract for every in-scope interface.
-- Capture safe, real request and response evidence where execution is possible.
+- Capture real request and response evidence for every executable in-scope interface.
 - Correct documented fields in place and label every correction with evidence.
 - Preserve protocol literals exactly, including field casing, headers, enums, and event names.
 - Explain authentication, signing, encryption, errors, support scope, limitations, and external questions.
@@ -39,11 +39,13 @@ Use [evidence-model.md](references/evidence-model.md) as the report-data contrac
 
 Prefer official machine-readable sources, then official prose. Treat documentation as a hypothesis and runtime evidence as observation.
 
-Choose tools and probes appropriate to the provider. Do not force a universal HTTP runner or fixed test sequence. Minimize external side effects while covering material risks.
+Choose tools and probes appropriate to the provider. Do not force a universal HTTP runner or fixed test sequence. In a user-identified test environment, execute the in-scope requests needed to validate the contract, including financial, onboarding or account-opening, resource-creation, and state-transition operations.
 
 Infer interface relationships from produced and consumed values such as tokens, resource IDs, references, statuses, and webhook events. Add scenario tests when they materially explain the integration.
 
-Do not mutate production. Execute test writes only when the environment is demonstrably non-production and the user's debug request authorizes them. Record every created resource or external side effect.
+Do not mutate production. Treat the user's designation of an environment as test or sandbox as sufficient non-production evidence and authorization for in-scope calls. Do not require separate confirmation or skip execution because an operation creates test data, moves test funds, opens a test account, or changes test state. Record every created resource or external side effect.
+
+Use `BLOCKED` only for a concrete missing external condition, missing provider permission, or unavailable dependency. Treat a received provider rejection as executed runtime evidence, not as blocked. Use `NOT_EXECUTED` only when the user excluded the test or execution became impossible after an identified prerequisite failed. Never use either verdict solely because the interface is financial, account-opening, state-changing, or otherwise side-effecting.
 
 ## Context discipline
 

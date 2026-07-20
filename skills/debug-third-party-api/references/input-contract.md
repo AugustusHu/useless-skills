@@ -61,4 +61,4 @@ Allowed references:
 
 ## Environment confidence
 
-Before a write, establish that the endpoint and credential set are non-production. Use provider evidence such as a sandbox hostname, test-key documentation, `isLive:false`, zero-value pricing, or an explicit user statement. If confidence is insufficient, restrict work to read-only probes and ask for clarification.
+Treat an explicit user statement that the supplied environment is test or sandbox as sufficient non-production evidence. A sandbox hostname, test-key documentation, `isLive:false`, or zero-value pricing can establish the same fact when the user did not state it. Once established, the debug request authorizes all in-scope calls; do not request separate approval for write, financial, account-opening, or state-transition interfaces. If the environment cannot be classified, ask for clarification before mutation.
