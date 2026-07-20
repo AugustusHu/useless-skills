@@ -34,6 +34,7 @@ REQUIRED_PROBE_DIMENSIONS = {
     "ACCOUNT_NUMBER": {"format"},
     "ACCOUNT_NAME": {"format"},
 }
+CATALOG_MODES = {"INLINE", "RETRIEVAL"}
 INTERFACE_KEYS = {
     "id",
     "name",
@@ -60,6 +61,16 @@ SECRET_QUERY = re.compile(
     r"[?&](?:token|signature|api[-_]?key|secret)=(?!\[REDACTED\])[^&\s]+",
     re.IGNORECASE,
 )
+
+
+def validate_source_refs(value: Any, path: str, errors: list[str]) -> None:
+    refs = [value] if isinstance(value, str) else value
+    if (
+        not isinstance(refs, list)
+        or not refs
+        or any(not isinstance(item, str) or not item.strip() for item in refs)
+    ):
+        errors.append(f"{path} must contain at least one source reference")
 
 
 def visit_sensitive(value: Any, path: str, errors: list[str]) -> None:
@@ -91,12 +102,18 @@ def validate_crypto_dimension(
     official = value.get("official")
     if not isinstance(official, dict) or not official:
         errors.append(f"{path}.official must contain the documented contract")
-    elif dimension == "signing" and not official.get("algorithm"):
-        errors.append(f"{path}.official.algorithm is required")
-    elif dimension == "encryption" and not (
-        official.get("algorithm") or official.get("transport")
-    ):
-        errors.append(f"{path}.official requires algorithm or transport")
+    else:
+        validate_source_refs(
+            official.get("sourceRefs") or official.get("source"),
+            f"{path}.official.sourceRefs",
+            errors,
+        )
+        if dimension == "signing" and not official.get("algorithm"):
+            errors.append(f"{path}.official.algorithm is required")
+        elif dimension == "encryption" and not (
+            official.get("algorithm") or official.get("transport")
+        ):
+            errors.append(f"{path}.official requires algorithm or transport")
     for section_name in ("localVerification", "interoperability"):
         section_path = f"{path}.{section_name}"
         section = value.get(section_name)
@@ -111,8 +128,55 @@ def validate_crypto_dimension(
         executed = verdict in EXECUTED_VERDICTS
         if executed and not section.get("evidenceIds"):
             errors.append(f"{section_path}.evidenceIds is required for executed claims")
-        if section_name == "localVerification" and executed and not section.get("code"):
-            errors.append(f"{section_path}.code is required for executed local checks")
+        if section_name == "localVerification" and not section.get("code"):
+            errors.append(f"{section_path}.code is required as a reusable example")
+
+
+def validate_support_scope(value: Any, path: str, errors: list[str]) -> None:
+    if not isinstance(value, dict):
+        errors.append(f"{path} must be an object")
+        return
+    verdict = value.get("verdict")
+    if verdict not in VERDICTS:
+        errors.append(f"{path}.verdict is invalid")
+    official = value.get("official")
+    if not isinstance(official, dict) or not official:
+        errors.append(f"{path}.official must contain the documented support scope")
+        return
+    mode = official.get("catalogMode")
+    if mode not in CATALOG_MODES:
+        errors.append(f"{path}.official.catalogMode must be INLINE or RETRIEVAL")
+    validate_source_refs(
+        official.get("sourceRefs"),
+        f"{path}.official.sourceRefs",
+        errors,
+    )
+    scope_values = {
+        key: item
+        for key, item in official.items()
+        if key not in {"catalogMode", "sourceRefs"} and item not in (None, "", [], {})
+    }
+    if not scope_values:
+        errors.append(f"{path}.official must describe the declared support scope")
+    observed = value.get("observed")
+    if not isinstance(observed, dict) or not observed:
+        errors.append(f"{path}.observed must contain runtime observations")
+    if verdict in EXECUTED_VERDICTS and not value.get("evidenceIds"):
+        errors.append(f"{path}.evidenceIds is required for executed observations")
+    if mode == "RETRIEVAL":
+        retrieval = value.get("retrieval")
+        if not isinstance(retrieval, dict) or not retrieval:
+            errors.append(f"{path}.retrieval is required for a dynamic catalog")
+        else:
+            if not retrieval.get("instructions"):
+                errors.append(f"{path}.retrieval.instructions is required")
+            if not any(
+                retrieval.get(key)
+                for key in ("url", "interfaceId", "documentation")
+            ):
+                errors.append(
+                    f"{path}.retrieval requires url, interfaceId, or documentation"
+                )
 
 
 def validate_contract_row(
@@ -123,6 +187,9 @@ def validate_contract_row(
         return
     if not row.get(identity_key):
         errors.append(f"{path}.{identity_key} is required")
+    if row.get("documented") in (None, "", [], {}):
+        errors.append(f"{path}.documented is required")
+    validate_source_refs(row.get("documentSource"), f"{path}.documentSource", errors)
     verdict = row.get("verdict")
     if verdict not in VERDICTS:
         errors.append(f"{path}.verdict is invalid")
@@ -163,6 +230,11 @@ def validate_data(data: dict[str, Any]) -> list[str]:
                 interface.get("signing"),
                 f"interfaces[{index}].signing",
                 "signing",
+                errors,
+            )
+            validate_support_scope(
+                interface.get("supportScope"),
+                f"interfaces[{index}].supportScope",
                 errors,
             )
             validate_crypto_dimension(
@@ -335,6 +407,8 @@ def validate_html(html: str, data: dict[str, Any]) -> list[str]:
         "完整脱敏 Response",
         "成功探测",
         "失败探测",
+        "官方获取方式",
+        "可执行代码示例",
     ):
         if marker not in html:
             errors.append(f"HTML missing marker: {marker}")

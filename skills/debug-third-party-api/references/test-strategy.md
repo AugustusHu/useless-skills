@@ -21,6 +21,12 @@ Record these as `probeOutcome: SUCCESS` and `probeOutcome: FAILURE`. This descri
 
 Two probes are only the floor. Do not convert untested dimensions into broad conclusions after the minimum pair. Prefer a valid baseline with one material variable changed, and add cases while new probes can resolve material uncertainty.
 
+## Official contract collection
+
+Before testing, collect the original official declaration for every request field, response field, and error code: name, type, requiredness, constraints, enums, examples, conditional rules, and exact source page or section. When the official material is silent or contradictory, record that fact with the pages searched; do not replace it with an inferred declaration.
+
+Collect official institution, region, and currency support separately from runtime observations. Keep complete small catalogs inline. For large or dynamic catalogs, record the official list/query interface or documentation route, method, parameters, authentication, and usage instructions so the reader can retrieve the current data.
+
 ## Financial critical fields
 
 Identify material request fields before choosing cases. Mark applicable fields as `AMOUNT`, `PHONE`, `ACCOUNT_NUMBER`, or `ACCOUNT_NAME`, then probe each material constraint separately.
@@ -52,9 +58,9 @@ Show the relationship even when a step is blocked. Do not invent responses.
 
 ## Cryptographic operations
 
-For signing, verification, encryption, and decryption, capture the official algorithm contract before testing: algorithm, key source, exact input bytes or canonicalization, character encoding, output encoding, and signature/ciphertext location. Include mode, padding, IV or nonce, authentication tag, and AAD when applicable.
+For signing, verification, encryption, and decryption, capture the sourced official algorithm contract before testing: algorithm, key source, exact input bytes or canonicalization, character encoding, output encoding, and signature/ciphertext location. Include mode, padding, IV or nonce, authentication tag, and AAD when applicable.
 
-Use an official test vector when available. Otherwise run a synthetic local vector with disposable values and record the executable code, runtime, result, tamper behavior, and evidence ID. Keep real provider interoperability as a separate verdict: a local HMAC match or encrypt/decrypt round trip proves local consistency, not compatibility with the provider. Use only redacted key references for real secrets.
+Use an official test vector when available. Otherwise run a synthetic local vector with disposable values and record the reusable executable code, runtime, result, tamper behavior, and evidence ID. If the official contract is incomplete, provide a code template that marks the unresolved parameters rather than inventing them. Keep real provider interoperability as a separate verdict: a local HMAC match or encrypt/decrypt round trip proves local consistency, not compatibility with the provider. Use only redacted key references for real secrets.
 
 ## Side-effect classes
 

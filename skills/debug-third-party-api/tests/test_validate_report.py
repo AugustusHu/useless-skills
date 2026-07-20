@@ -43,7 +43,17 @@ def report_data() -> dict:
                 "authentication": {},
                 "signing": {},
                 "encryption": {},
-                "supportScope": {},
+                "supportScope": {
+                    "verdict": "PASS",
+                    "official": {
+                        "catalogMode": "INLINE",
+                        "regions": ["NG"],
+                        "currencies": ["NGN"],
+                        "sourceRefs": ["https://docs.example.test/scope"],
+                    },
+                    "observed": {"regions": ["NG"], "currencies": ["NGN"]},
+                    "evidenceIds": ["E-SCOPE-01"],
+                },
                 "requestFields": [],
                 "responseFields": [],
                 "errorCodes": [],
@@ -100,12 +110,70 @@ class ProbeCoverageTest(unittest.TestCase):
                 "完整脱敏 Response",
                 "成功探测",
                 "失败探测",
+                "官方获取方式",
+                "可执行代码示例",
                 "Create item",
             ]
         )
         self.assertEqual(
             validate_report.validate_html(html, report_data()),
             [],
+        )
+
+    def test_contract_row_requires_official_source(self) -> None:
+        errors = []
+        validate_report.validate_contract_row(
+            {
+                "field": "amount",
+                "documented": "Integer minor units",
+                "verdict": "NOT_EXECUTED",
+            },
+            "field",
+            "field",
+            errors,
+        )
+        self.assertIn(
+            "field.documentSource must contain at least one source reference",
+            errors,
+        )
+
+    def test_dynamic_scope_requires_retrieval_instructions(self) -> None:
+        data = report_data()
+        scope = data["interfaces"][0]["supportScope"]
+        scope["official"]["catalogMode"] = "RETRIEVAL"
+        errors = validate_report.validate_data(data)
+        self.assertIn(
+            "interfaces[0].supportScope.retrieval is required for a dynamic catalog",
+            errors,
+        )
+
+    def test_crypto_requires_source_and_code_example(self) -> None:
+        errors = []
+        validate_report.validate_crypto_dimension(
+            {
+                "official": {"algorithm": "HMAC-SHA512"},
+                "localVerification": {
+                    "verdict": "BLOCKED",
+                    "observed": "Missing official encoding",
+                    "evidenceIds": [],
+                },
+                "interoperability": {
+                    "verdict": "BLOCKED",
+                    "observed": "No callback captured",
+                    "evidenceIds": [],
+                },
+            },
+            "signing",
+            "signing",
+            errors,
+        )
+        self.assertIn(
+            "signing.official.sourceRefs must contain at least one source reference",
+            errors,
+        )
+        self.assertIn(
+            "signing.localVerification.code is required as a reusable example",
+            errors,
         )
 
 

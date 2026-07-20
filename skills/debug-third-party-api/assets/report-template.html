@@ -322,6 +322,28 @@
     .doc-links { display: grid; gap: 5px; }
     .doc-links a { color: var(--blue); text-decoration: none; overflow-wrap: anywhere; }
     .doc-links a:hover { text-decoration: underline; }
+    .source-refs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 9px;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 10px;
+    }
+    .source-refs a { color: var(--blue); text-decoration: none; }
+    .source-refs a:hover { text-decoration: underline; }
+    .scope-block { padding: 9px 13px; }
+    .scope-block + .scope-block { border-top: 1px solid var(--line); }
+    .scope-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 7px;
+      font-size: 12px;
+    }
+    .scope-head strong { font-size: 12px; }
     .literal-list {
       display: flex;
       flex-wrap: wrap;
@@ -811,6 +833,61 @@ function kvCard(title, rows, wide = false) {
   return card;
 }
 
+function sourceReferences(value, label = "官方来源") {
+  const refs = (Array.isArray(value) ? value : [value]).filter(Boolean);
+  const root = $("div", "source-refs");
+  if (!refs.length) return root;
+  root.append($("span", "", `${label}：`));
+  refs.forEach((ref, index) => {
+    const source = primitive(ref);
+    if (/^https?:\/\//i.test(source)) {
+      const link = $("a", "", refs.length > 1 ? `来源 ${index + 1}` : "查看原文");
+      link.href = source;
+      link.target = "_blank";
+      link.rel = "noreferrer";
+      link.title = source;
+      root.append(link);
+    } else {
+      root.append($("code", "", source));
+    }
+  });
+  return root;
+}
+
+function supportScopeCard(value) {
+  if (!value?.official) return kvCard("支持机构 / 地域 / 币种", flatten(value), true);
+  const card = $("div", "card wide");
+  card.append($("h4", "", "支持机构 / 地域 / 币种"));
+
+  const official = $("div", "scope-block");
+  const officialHead = $("div", "scope-head");
+  officialHead.append(
+    $("strong", "", "官方声明"),
+    $("span", "muted", value.official.catalogMode === "RETRIEVAL" ? "动态目录" : "完整展示")
+  );
+  const officialValue = Object.fromEntries(
+    Object.entries(value.official).filter(([key]) => !["catalogMode", "sourceRefs"].includes(key))
+  );
+  official.append(officialHead, kvList(flatten(officialValue)), sourceReferences(value.official.sourceRefs));
+  card.append(official);
+
+  const observed = $("div", "scope-block");
+  const observedHead = $("div", "scope-head");
+  observedHead.append($("strong", "", "实测结果"), badge(value.verdict));
+  observed.append(observedHead, kvList(flatten(value.observed)));
+  if (value.evidenceIds?.length) observed.append(evidenceRow(value.evidenceIds));
+  card.append(observed);
+
+  if (!empty(value.retrieval)) {
+    const retrieval = $("div", "scope-block");
+    const retrievalHead = $("div", "scope-head");
+    retrievalHead.append($("strong", "", "官方获取方式"));
+    retrieval.append(retrievalHead, kvList(flatten(value.retrieval)));
+    card.append(retrieval);
+  }
+  return card;
+}
+
 function authenticationMethod(value) {
   if (typeof value === "string") return value;
   if (empty(value)) return "未记录";
@@ -1025,7 +1102,10 @@ const cryptoLabels = {
 };
 
 function cryptoRows(value) {
-  return flatten(value).map(([key, val]) => [cryptoLabels[key] || key, val]);
+  const content = Object.fromEntries(
+    Object.entries(value || {}).filter(([key]) => !["source", "sourceRefs"].includes(key))
+  );
+  return flatten(content).map(([key, val]) => [cryptoLabels[key] || key, val]);
 }
 
 function cryptoPane(item, dimension, part, title, data, official = false) {
@@ -1040,7 +1120,10 @@ function cryptoPane(item, dimension, part, title, data, official = false) {
     return pane;
   }
   if (official) {
-    pane.append(kvList(cryptoRows(data)));
+    pane.append(
+      kvList(cryptoRows(data)),
+      sourceReferences(data.sourceRefs || data.source)
+    );
     return pane;
   }
   pane.append(kvList([
@@ -1051,7 +1134,7 @@ function cryptoPane(item, dimension, part, title, data, official = false) {
   if (data.evidenceIds?.length) pane.append(evidenceRow(data.evidenceIds));
   if (data.code) {
     pane.append(
-      $("div", "crypto-code-label", "可执行代码"),
+      $("div", "crypto-code-label", "可执行代码示例"),
       Object.assign($("pre"), {textContent: data.code})
     );
   }
@@ -1167,6 +1250,9 @@ function fieldCell(row, key, kind) {
     const evidence = $("div", "cell-evidence");
     evidence.append(evidenceRow(row.evidenceIds));
     cell.append(evidence);
+  }
+  if (key === "documented" && row.documentSource) {
+    cell.append(sourceReferences(row.documentSource));
   }
   if (key === "correction" && row.notes?.length) {
     cell.append($("div", "cell-note", row.notes.map(primitive).join("；")));
@@ -1436,7 +1522,7 @@ function interfacePanel(item) {
   contractGrid.append(
     kvCard("接口说明", [["用途", item.description], ["方法", item.method], ["URL", item.url]]),
     authenticationCard(item.authentication),
-    kvCard("支持机构 / 地域 / 币种", flatten(item.supportScope), true),
+    supportScopeCard(item.supportScope),
     cryptographyCard(item)
   );
   current.body.append(contractGrid);

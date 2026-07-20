@@ -61,6 +61,7 @@ Use the same keys for request and response rows:
   "criticalFieldCategory": null,
   "probeDimensions": [],
   "documented": "Official claim",
+  "documentSource": ["https://docs.provider.example/reference#customerReference"],
   "observed": "Runtime observation or Not executed",
   "correction": "Implementation contract",
   "evidenceIds": ["E-001"],
@@ -68,11 +69,7 @@ Use the same keys for request and response rows:
 }
 ```
 
-Every request field, response field, and error-code row must have an explicit
-`verdict`. Use `NOT_EXECUTED` for a documented row that was not tested and
-`BLOCKED` only when an external condition specifically prevents that row's
-probe. Only `DOCUMENT_MISMATCH` means that the documented value is replaced in
-the report.
+Every request field, response field, and error-code row must have a non-empty `documented` value, at least one `documentSource`, and an explicit `verdict`. Preserve the official wording and constraints; when the source is silent, write an explicit absence and reference the pages searched. Use `NOT_EXECUTED` for a documented row that was not tested and `BLOCKED` only when an external condition specifically prevents that row's probe. Only `DOCUMENT_MISMATCH` means that the documented value is replaced in the report.
 
 For financial request fields, set `criticalFieldCategory` to `AMOUNT`, `PHONE`, `ACCOUNT_NUMBER`, or `ACCOUNT_NAME`, and list the tested constraints in `probeDimensions`.
 
@@ -89,12 +86,41 @@ Keep the results in the same request-field row. Use `documented`, `observed`, `c
   "code": "409 / duplicate reference",
   "verdict": "DOCUMENT_MISMATCH",
   "documented": "409 Conflict",
+  "documentSource": ["https://docs.provider.example/errors#duplicate"],
   "observed": "200 with a new resource ID",
   "correction": "Do not rely on provider-side idempotency",
   "evidenceIds": ["E-020"],
   "notes": []
 }
 ```
+
+## Support scope
+
+```json
+{
+  "verdict": "OBSERVED",
+  "official": {
+    "catalogMode": "RETRIEVAL",
+    "institutions": "Dynamic institution catalog",
+    "regions": ["NG"],
+    "currencies": ["NGN"],
+    "sourceRefs": ["https://docs.provider.example/institutions"]
+  },
+  "observed": {
+    "summary": "Sandbox returned 145 institutions"
+  },
+  "retrieval": {
+    "method": "GET",
+    "url": "/v1/institutions",
+    "parameters": "country=NG",
+    "authentication": "Bearer token",
+    "instructions": "Call at startup and refresh daily; preserve provider codes."
+  },
+  "evidenceIds": ["E-INSTITUTIONS-001"]
+}
+```
+
+Use `catalogMode: INLINE` when the complete official declaration is practical to display. Use `RETRIEVAL` for large or dynamic data and provide enough official retrieval information for the reader to obtain the current catalog. Keep `official` and `observed` separate.
 
 ## Case records
 
@@ -130,7 +156,7 @@ Use the same structure for an applicable `signing` or `encryption` dimension:
 ```json
 {
   "official": {
-    "source": "Official documentation page",
+    "sourceRefs": ["https://docs.provider.example/webhooks#signature"],
     "algorithm": "HMAC-SHA512",
     "keySource": "Webhook Secret",
     "message": "Raw HTTP body bytes",
@@ -154,7 +180,7 @@ Use the same structure for an applicable `signing` or `encryption` dimension:
 }
 ```
 
-Keep official claims, local executable verification, and real provider interoperability separate. Local success is `PASS` only when it matches an official expected vector; otherwise use `OBSERVED`. A local encrypt/decrypt round trip alone does not prove provider compatibility. Flat `NOT_APPLICABLE` objects remain valid when no application-level cryptographic operation exists.
+Keep sourced official claims, local executable verification, and real provider interoperability separate. Every applicable dimension must include a reusable code example; when official parameters are incomplete, the example must visibly preserve the unresolved placeholders. Local success is `PASS` only when it matches an official expected vector; otherwise use `OBSERVED`. A local encrypt/decrypt round trip alone does not prove provider compatibility. Flat `NOT_APPLICABLE` objects remain valid when no application-level cryptographic operation exists.
 
 ## Scenario records
 
