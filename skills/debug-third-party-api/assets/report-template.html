@@ -895,10 +895,20 @@ function sourceReferences(value, label = "官方来源") {
   return root;
 }
 
-function supportScopeCard(value) {
-  if (!value?.official) return kvCard("支持机构 / 地域 / 币种", flatten(value), true);
+function regionSupportCard(value) {
   const card = $("div", "card wide");
-  card.append($("h4", "", "支持机构 / 地域 / 币种"));
+  card.append(
+    $("h4", "", "全系统支持地域"),
+    $("p", "muted", value?.summary || "未记录系统支持地域")
+  );
+  if (value?.sourceRefs?.length) card.append(sourceReferences(value.sourceRefs));
+  return card;
+}
+
+function institutionSupportCard(value) {
+  if (!value?.official) return kvCard("支持机构", flatten(value), true);
+  const card = $("div", "card wide");
+  card.append($("h4", "", "支持机构"));
 
   const official = $("div", "scope-block");
   const officialHead = $("div", "scope-head");
@@ -1529,7 +1539,11 @@ function overviewPanel() {
   summaryBox.append(summaryCopy, summaryMetrics);
   panel.append(summaryBox);
 
-  let current = section("四元素输入");
+  let current = section("系统支持范围");
+  current.body.append(regionSupportCard(report.regionSupport));
+  panel.append(current.root);
+
+  current = section("四元素输入");
   const inputGrid = $("div", "grid");
   inputGrid.append(
     docsCard(report.input?.documentation),
@@ -1586,10 +1600,12 @@ function interfacePanel(item) {
   const contractGrid = $("div", "grid");
   contractGrid.append(
     kvCard("接口说明", [["用途", item.description], ["方法", item.method], ["URL", item.url]]),
-    authenticationCard(item.authentication),
-    supportScopeCard(item.supportScope),
-    cryptographyCard(item)
+    authenticationCard(item.authentication)
   );
+  if (item.institutionSupport?.verdict !== "NOT_APPLICABLE") {
+    contractGrid.append(institutionSupportCard(item.institutionSupport));
+  }
+  contractGrid.append(cryptographyCard(item));
   current.body.append(contractGrid);
   panel.append(current.root);
 

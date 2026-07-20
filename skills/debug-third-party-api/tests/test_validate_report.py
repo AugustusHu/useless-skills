@@ -35,6 +35,10 @@ def report_data() -> dict:
             "interfaceScope": [{"requestedName": "Create item"}],
             "requestedScenarios": [],
         },
+        "regionSupport": {
+            "summary": "支持尼日利亚、菲律宾、俄罗斯。",
+            "sourceRefs": ["https://docs.example.test/regions"],
+        },
         "interfaces": [
             {
                 "id": "create-item",
@@ -44,15 +48,14 @@ def report_data() -> dict:
                 "authentication": {},
                 "signing": {},
                 "encryption": {},
-                "supportScope": {
+                "institutionSupport": {
                     "verdict": "PASS",
                     "official": {
                         "catalogMode": "INLINE",
-                        "regions": ["NG"],
-                        "currencies": ["NGN"],
+                        "institutions": ["Example Bank"],
                         "sourceRefs": ["https://docs.example.test/scope"],
                     },
-                    "observed": {"regions": ["NG"], "currencies": ["NGN"]},
+                    "observed": {"summary": "Sandbox returned Example Bank."},
                     "evidenceIds": ["E-SCOPE-01"],
                 },
                 "requestFields": [],
@@ -145,6 +148,8 @@ class ProbeCoverageTest(unittest.TestCase):
                 "失败探测",
                 "官方获取方式",
                 "可执行代码示例",
+                "全系统支持地域",
+                "支持机构",
                 "Create item",
             ]
         )
@@ -174,13 +179,45 @@ class ProbeCoverageTest(unittest.TestCase):
 
     def test_dynamic_scope_requires_retrieval_instructions(self) -> None:
         data = report_data()
-        scope = data["interfaces"][0]["supportScope"]
+        scope = data["interfaces"][0]["institutionSupport"]
         scope["official"]["catalogMode"] = "RETRIEVAL"
         errors = validate_report.validate_data(data)
         self.assertIn(
-            "interfaces[0].supportScope.retrieval is required for a dynamic catalog",
+            "interfaces[0].institutionSupport.retrieval is required for a dynamic catalog",
             errors,
         )
+
+    def test_region_support_is_required_at_report_level(self) -> None:
+        data = report_data()
+        del data["regionSupport"]
+        errors = validate_report.validate_data(data)
+        self.assertIn("regionSupport must be an object", errors)
+
+    def test_rejects_region_or_currency_inside_institution_support(self) -> None:
+        data = report_data()
+        data["interfaces"][0]["institutionSupport"]["official"].update(
+            {"regions": ["NG"], "currencies": ["NGN"]}
+        )
+        errors = validate_report.validate_data(data)
+        self.assertIn(
+            "interfaces[0].institutionSupport.official must not contain system "
+            "regions or currencies: currencies, regions",
+            errors,
+        )
+
+    def test_accepts_not_applicable_institution_support(self) -> None:
+        data = report_data()
+        data["interfaces"][0]["institutionSupport"] = {
+            "verdict": "NOT_APPLICABLE",
+            "detail": "This interface does not depend on an institution.",
+        }
+        self.assertEqual(validate_report.validate_data(data), [])
+
+    def test_template_separates_regions_and_institutions(self) -> None:
+        template = TEMPLATE.read_text()
+        self.assertIn("全系统支持地域", template)
+        self.assertIn('$("h4", "", "支持机构")', template)
+        self.assertNotIn("支持机构 / 地域 / 币种", template)
 
     def test_crypto_requires_source_and_code_example(self) -> None:
         errors = []

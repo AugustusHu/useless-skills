@@ -45,6 +45,7 @@ def normalize(data: dict[str, Any]) -> dict[str, Any]:
     data.setdefault("meta", {})
     data.setdefault("input", {})
     data.setdefault("terminology", {})
+    data.setdefault("regionSupport", {})
     for key in ("interfaces", "scenarios", "findings", "questions", "limitations", "sideEffects"):
         data.setdefault(key, [])
     data["meta"].setdefault("provider", "Third party")

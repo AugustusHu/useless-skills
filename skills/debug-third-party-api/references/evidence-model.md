@@ -23,6 +23,10 @@ Store one JSON object. Empty dimensions must be explicit rather than omitted.
     "businessTerms": {},
     "protocolLiterals": []
   },
+  "regionSupport": {
+    "summary": "支持尼日利亚、菲律宾、俄罗斯。",
+    "sourceRefs": ["https://docs.provider.example/regions"]
+  },
   "interfaces": [
     {
       "id": "interface-1",
@@ -33,7 +37,7 @@ Store one JSON object. Empty dimensions must be explicit rather than omitted.
       "authentication": {},
       "signing": {},
       "encryption": {},
-      "supportScope": {},
+      "institutionSupport": {},
       "requestFields": [],
       "responseFields": [],
       "errorCodes": [],
@@ -79,57 +83,57 @@ Use the same keys for request and response rows:
   "constraintEvidence": {
     "format": {
       "documented": "Official documentation does not declare a format.",
-      "observed": "ASCII and Unicode probes executed.",
+      "observed": "已执行 ASCII 和 Unicode 探测。",
       "verdict": "OBSERVED",
       "evidenceIds": ["E-001", "E-002"]
     },
     "length": {
       "documented": "Official documentation does not declare a length.",
-      "observed": "Not executed: the accepted maximum remains unknown.",
+      "observed": "未执行：可接受的最大长度仍未知。",
       "verdict": "NOT_EXECUTED",
       "evidenceIds": []
     },
     "charset": {
       "documented": "Official documentation does not declare a character set.",
-      "observed": "ASCII and Unicode probes executed.",
+      "observed": "已执行 ASCII 和 Unicode 探测。",
       "verdict": "OBSERVED",
       "evidenceIds": ["E-001", "E-002"]
     },
     "sourceGeneration": {
       "documented": "Client-supplied reference.",
-      "observed": "The provider accepted a caller-generated value.",
+      "observed": "第三方接受了调用方生成的值。",
       "verdict": "PASS",
       "evidenceIds": ["E-001"]
     },
     "uniqueness": {
       "documented": "Client-supplied reference.",
-      "observed": "A duplicate reference created another resource.",
+      "observed": "重复 reference 创建了另一个资源。",
       "verdict": "OBSERVED",
       "evidenceIds": ["E-003"]
     },
     "duplicateBehavior": {
       "documented": "Official documentation does not declare duplicate handling.",
-      "observed": "A duplicate reference created another resource.",
+      "observed": "重复 reference 创建了另一个资源。",
       "verdict": "OBSERVED",
       "evidenceIds": ["E-003"]
     },
     "reconciliation": {
       "documented": "The response returns a provider resource ID.",
-      "observed": "The caller reference and provider ID were retained together.",
+      "observed": "调用方 reference 与第三方 ID 已关联保留。",
       "verdict": "PASS",
       "evidenceIds": ["E-001"]
     }
   },
   "documented": "Official claim",
   "documentSource": ["https://docs.provider.example/reference#customerReference"],
-  "observed": "Runtime observation or Not executed",
-  "correction": "Implementation contract",
+  "observed": "实测结果或具体的未执行原因",
+  "correction": "接入时采用的修订规则",
   "evidenceIds": ["E-001"],
   "notes": []
 }
 ```
 
-Every request field and response field must have a non-empty `type` and an explicit `required` value. Request fields also require `source`; response fields require `action`. Every field and error-code row must have a non-empty `documented` value, at least one `documentSource`, and an explicit `verdict`. Preserve the official wording and constraints; when the source is silent, write an explicit absence and reference the pages searched. Use `NOT_EXECUTED` for a documented row that was not tested and `BLOCKED` only when an external condition specifically prevents that row's probe. Only `DOCUMENT_MISMATCH` means that the documented value is replaced in the report.
+Every request field and response field must have a non-empty `type` and an explicit `required` value. Request fields also require `source`; response fields require `action`. Every field and error-code row must have a non-empty `documented` value, at least one `documentSource`, and an explicit `verdict`. Write `observed` and every non-empty `correction` in Chinese. Preserve official wording and protocol literals exactly, embedding literals such as `HTTP 201`, `IN_PROGRESS`, or field names inside the Chinese explanation. When the source is silent, write an explicit absence and reference the pages searched. Use `NOT_EXECUTED` for a documented row that was not tested and `BLOCKED` only when an external condition specifically prevents that row's probe. Only `DOCUMENT_MISMATCH` means that the documented value is replaced in the report.
 
 Every request field must contain `criticalFieldCategory`, using `null` only after deciding that no material profile applies. Material categories are `AMOUNT`, `PHONE`, `ACCOUNT_NUMBER`, `ACCOUNT_NAME`, `CARD`, `IDENTITY`, `INSTITUTION`, `IDENTIFIER`, `ENUM_ROUTING`, `DATETIME`, `TEXT`, and `CALLBACK_SECURITY`.
 
@@ -145,14 +149,32 @@ Keep all results in the same request-field row. The renderer summarizes the cons
   "verdict": "DOCUMENT_MISMATCH",
   "documented": "409 Conflict",
   "documentSource": ["https://docs.provider.example/errors#duplicate"],
-  "observed": "200 with a new resource ID",
-  "correction": "Do not rely on provider-side idempotency",
+  "observed": "实际返回 HTTP 200，并生成了新的资源 ID。",
+  "correction": "不要依赖第三方幂等，需要在接入侧控制重复请求。",
   "evidenceIds": ["E-020"],
   "notes": []
 }
 ```
 
-## Support scope
+## Region support
+
+Keep region support at report level because it describes the whole system, not one
+institution or interface. Render only the concise `summary` in the overview, with
+source links available for traceability:
+
+```json
+{
+  "summary": "支持尼日利亚、菲律宾、俄罗斯。",
+  "sourceRefs": ["https://docs.provider.example/regions"]
+}
+```
+
+Use full Chinese country or region names rather than protocol codes in `summary`.
+Do not repeat region support inside interface records.
+
+## Institution support
+
+Use `institutionSupport` only for the institution dimension of an interface:
 
 ```json
 {
@@ -160,8 +182,6 @@ Keep all results in the same request-field row. The renderer summarizes the cons
   "official": {
     "catalogMode": "RETRIEVAL",
     "institutions": "Dynamic institution catalog",
-    "regions": ["NG"],
-    "currencies": ["NGN"],
     "sourceRefs": ["https://docs.provider.example/institutions"]
   },
   "observed": {
@@ -179,6 +199,19 @@ Keep all results in the same request-field row. The renderer summarizes the cons
 ```
 
 Use `catalogMode: INLINE` when the complete official declaration is practical to display. Use `RETRIEVAL` for large or dynamic data and provide enough official retrieval information for the reader to obtain the current catalog. Keep `official` and `observed` separate.
+
+When an interface does not select, return, or depend on an institution, keep the
+dimension explicit without showing an institution card:
+
+```json
+{
+  "verdict": "NOT_APPLICABLE",
+  "detail": "This interface does not select, return, or depend on an institution."
+}
+```
+
+Never place regions, countries, or currencies in `institutionSupport`. Currency
+remains part of an actual interface field or `AMOUNT` constraint when applicable.
 
 ## Case records
 
@@ -226,12 +259,12 @@ Use the same structure for an applicable `signing` or `encryption` dimension:
     "runtime": "Python 3 stdlib",
     "testVector": "Synthetic body and disposable key",
     "code": "Executable redacted code",
-    "observed": "128 hex characters; replay accepted; tamper rejected",
+    "observed": "输出为 128 位十六进制字符；原文验签通过，篡改后验签失败。",
     "verdict": "OBSERVED",
     "evidenceIds": ["E-CRYPTO-001"]
   },
   "interoperability": {
-    "observed": "No real callback body or signature was available",
+    "observed": "没有可用的真实回调原文和签名。",
     "verdict": "BLOCKED",
     "evidenceIds": []
   }
@@ -258,7 +291,7 @@ Keep sourced official claims, local executable verification, and real provider i
       "consumes": ["accessToken"],
       "produces": ["resourceId", "customerReference"],
       "verdict": "PASS",
-      "observed": "201 Created",
+      "observed": "实际返回 HTTP 201 Created。",
       "evidenceIds": ["E-010"]
     }
   ],
@@ -299,8 +332,8 @@ Do not leave external questions as unprioritized strings.
   "category": "DOCUMENT_MISMATCH",
   "interfaceId": "create",
   "documented": "409 for duplicate reference",
-  "observed": "200 and a new resource ID",
-  "correction": "Enforce idempotency on the client",
+  "observed": "实际返回 HTTP 200，并生成了新的资源 ID。",
+  "correction": "在接入侧实现幂等控制。",
   "evidenceIds": ["E-020", "E-021"]
 }
 ```
