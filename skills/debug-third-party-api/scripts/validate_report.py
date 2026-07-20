@@ -22,82 +22,77 @@ VERDICTS = {
 QUESTION_PRIORITIES = {"P0", "P1", "P2"}
 PROBE_OUTCOMES = {"SUCCESS", "FAILURE"}
 EXECUTED_VERDICTS = {"PASS", "DOCUMENT_MISMATCH", "OBSERVED"}
+
+
+MATERIAL_PROFILE_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "references"
+    / "material-field-profiles.json"
+)
+
+
+def load_material_profiles(path: Path = MATERIAL_PROFILE_PATH) -> list[dict[str, Any]]:
+    try:
+        config = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"cannot load material field profiles: {path}") from exc
+    if (
+        not isinstance(config, dict)
+        or config.get("version") != 1
+        or not isinstance(config.get("profiles"), list)
+    ):
+        raise RuntimeError("material field profile config requires version 1 and profiles")
+    profiles = config["profiles"]
+    seen: set[str] = set()
+    for index, profile in enumerate(profiles):
+        if not isinstance(profile, dict):
+            raise RuntimeError(f"material field profile {index} must be an object")
+        profile_id = profile.get("id")
+        if (
+            not isinstance(profile_id, str)
+            or not profile_id
+            or profile_id in seen
+        ):
+            raise RuntimeError(f"material field profile {index} has an invalid id")
+        seen.add(profile_id)
+        if not isinstance(profile.get("appliesWhen"), str) or not profile["appliesWhen"]:
+            raise RuntimeError(f"material field profile {profile_id} needs appliesWhen")
+        pattern = profile.get("fieldNamePattern")
+        if not isinstance(pattern, str) or not pattern:
+            raise RuntimeError(f"material field profile {profile_id} needs fieldNamePattern")
+        try:
+            re.compile(pattern)
+        except re.error as exc:
+            raise RuntimeError(
+                f"material field profile {profile_id} has an invalid fieldNamePattern"
+            ) from exc
+        dimensions = profile.get("dimensions")
+        if (
+            not isinstance(dimensions, dict)
+            or not dimensions
+            or any(
+                not isinstance(key, str)
+                or not key
+                or not isinstance(guidance, str)
+                or not guidance
+                for key, guidance in dimensions.items()
+            )
+        ):
+            raise RuntimeError(f"material field profile {profile_id} needs dimensions")
+    return profiles
+
+
+MATERIAL_FIELD_PROFILES = load_material_profiles()
 MATERIAL_FIELD_CATEGORIES = {
-    "AMOUNT",
-    "PHONE",
-    "ACCOUNT_NUMBER",
-    "ACCOUNT_NAME",
-    "CARD",
-    "IDENTITY",
-    "INSTITUTION",
-    "IDENTIFIER",
-    "ENUM_ROUTING",
-    "DATETIME",
-    "TEXT",
-    "CALLBACK_SECURITY",
+    profile["id"] for profile in MATERIAL_FIELD_PROFILES
 }
 REQUIRED_CONSTRAINT_DIMENSIONS = {
-    "AMOUNT": {
-        "currency", "unit", "precision", "rounding", "minimum", "maximum",
-        "boundary", "format", "aggregateLimits",
-    },
-    "PHONE": {
-        "format", "countryCode", "length", "charset", "supportedCountries",
-        "normalization",
-    },
-    "ACCOUNT_NUMBER": {
-        "format", "length", "charset", "checksum", "leadingZero", "separators",
-        "maskingEncryption",
-    },
-    "ACCOUNT_NAME": {
-        "format", "minimumLength", "maximumLength", "charset", "punctuation",
-        "whitespace", "unicode", "matching", "masking",
-    },
-    "CARD": {
-        "format", "length", "charset", "validation", "tokenExpiry",
-        "storageLogging",
-    },
-    "IDENTITY": {
-        "format", "length", "charset", "typeDependency", "dateSemantics",
-        "maskingEncryption",
-    },
-    "INSTITUTION": {
-        "format", "length", "providerMapping", "sourceBinding", "supportScope",
-    },
-    "IDENTIFIER": {
-        "format", "length", "charset", "sourceGeneration", "uniqueness",
-        "duplicateBehavior", "reconciliation",
-    },
-    "ENUM_ROUTING": {
-        "values", "supportScope", "routingParty", "mapping", "routingBehavior",
-        "unknownFallback",
-    },
-    "DATETIME": {
-        "format", "timezone", "valueType", "timestampUnit", "precision",
-        "expiryTimeout",
-    },
-    "TEXT": {
-        "length", "charset", "specialCharacters", "unicode", "newlines",
-        "escaping",
-    },
-    "CALLBACK_SECURITY": {
-        "format", "https", "domainPolicy", "length", "encoding", "algorithm",
-        "canonicalization", "failureHandling",
-    },
+    profile["id"]: set(profile["dimensions"])
+    for profile in MATERIAL_FIELD_PROFILES
 }
-MATERIAL_FIELD_NAMES = (
-    ("AMOUNT", re.compile(r"(?:amount|balance)$")),
-    ("PHONE", re.compile(r"(?:phone|phoneno|mobile|mobileno|msisdn|telephone)$")),
-    ("ACCOUNT_NAME", re.compile(r"(?:accountname|walletname|payeename|beneficiaryname)$")),
-    ("ACCOUNT_NUMBER", re.compile(r"(?:accountno|accountnumber|walletno|walletnumber|iban)$")),
-    ("CARD", re.compile(r"(?:cardno|cardnumber|pan|expirydate|cvv|cvc|cardtoken|cardbin)$")),
-    ("IDENTITY", re.compile(r"(?:idtype|idno|identitynumber|nin|bvn|dateofbirth|dob)$")),
-    ("INSTITUTION", re.compile(r"(?:bankcode|swiftcode|bic|merchantid|institutioncode|institutionid)$")),
-    ("IDENTIFIER", re.compile(r"(?:requestreference|customerreference|orderid|transactionid|channelorderid|channelresponseid|idempotencykey)$")),
-    ("ENUM_ROUTING", re.compile(r"(?:currency|currencycode|country|countrycode|party|businesstype|ability|action|status)$")),
-    ("DATETIME", re.compile(r"(?:timestamp|transactiontime|expirytime|createdat|updatedat|requestedat|datetime)$")),
-    ("TEXT", re.compile(r"(?:narration|remark|description|smscontent)$")),
-    ("CALLBACK_SECURITY", re.compile(r"(?:callbackurl|returnurl|webhookurl|signature|sign)$")),
+MATERIAL_FIELD_NAMES = tuple(
+    (profile["id"], re.compile(profile["fieldNamePattern"]))
+    for profile in MATERIAL_FIELD_PROFILES
 )
 CATALOG_MODES = {"INLINE", "RETRIEVAL"}
 INTERFACE_KEYS = {

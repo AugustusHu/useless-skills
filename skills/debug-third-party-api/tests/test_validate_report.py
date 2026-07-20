@@ -2,12 +2,16 @@
 
 import copy
 import importlib.util
+import json
 import unittest
 from pathlib import Path
 
 
 SCRIPT = Path(__file__).parents[1] / "scripts" / "validate_report.py"
 TEMPLATE = Path(__file__).parents[1] / "assets" / "report-template.html"
+MATERIAL_PROFILES = (
+    Path(__file__).parents[1] / "references" / "material-field-profiles.json"
+)
 SPEC = importlib.util.spec_from_file_location("validate_report", SCRIPT)
 validate_report = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader
@@ -74,6 +78,36 @@ def report_data() -> dict:
 
 
 class ProbeCoverageTest(unittest.TestCase):
+    def test_material_profile_config_is_validator_source_of_truth(self) -> None:
+        config = json.loads(MATERIAL_PROFILES.read_text())
+        profiles = config["profiles"]
+        self.assertEqual(config["version"], 1)
+        self.assertEqual(
+            {profile["id"] for profile in profiles},
+            validate_report.MATERIAL_FIELD_CATEGORIES,
+        )
+        self.assertEqual(
+            {
+                profile["id"]: set(profile["dimensions"])
+                for profile in profiles
+            },
+            validate_report.REQUIRED_CONSTRAINT_DIMENSIONS,
+        )
+        self.assertTrue(
+            all(profile["appliesWhen"] for profile in profiles)
+        )
+        self.assertEqual(
+            validate_report.load_material_profiles(MATERIAL_PROFILES),
+            profiles,
+        )
+
+    def test_strategy_uses_material_profile_config(self) -> None:
+        strategy = (
+            Path(__file__).parents[1] / "references" / "test-strategy.md"
+        ).read_text()
+        self.assertIn("material-field-profiles.json", strategy)
+        self.assertNotIn("- `AMOUNT`:", strategy)
+
     def test_side_effects_support_resource_ids_contract(self) -> None:
         template = TEMPLATE.read_text()
         self.assertIn("item.resourceIds?.length", template)
