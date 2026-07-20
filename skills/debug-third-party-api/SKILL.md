@@ -39,11 +39,11 @@ Use [evidence-model.md](references/evidence-model.md) as the report-data contrac
 
 Prefer official machine-readable sources, then official prose. Treat documentation as a hypothesis and runtime evidence as observation.
 
-Choose tools and probes appropriate to the provider. Do not force a universal HTTP runner or fixed test sequence. In a user-identified test environment, execute the in-scope requests needed to validate the contract, including financial, onboarding or account-opening, resource-creation, and state-transition operations.
+Choose tools and probes appropriate to the provider. Do not force a universal HTTP runner or fixed test sequence. Treat the debug environment as sandbox by definition and execute the in-scope requests needed to validate the contract, including financial, onboarding or account-opening, resource-creation, and state-transition operations.
 
 Infer interface relationships from produced and consumed values such as tokens, resource IDs, references, statuses, and webhook events. Add scenario tests when they materially explain the integration.
 
-Do not mutate production. Treat the user's designation of an environment as test or sandbox as sufficient non-production evidence and authorization for in-scope calls. Do not require separate confirmation or skip execution because an operation creates test data, moves test funds, opens a test account, or changes test state. Record every created resource or external side effect.
+The interface scope authorizes all calls against the supplied debug environment. Do not classify the environment, request confirmation, or skip execution because an operation creates test data, moves test funds, opens a test account, or changes test state. Record every created resource or external side effect.
 
 Use `BLOCKED` only for a concrete missing external condition, missing provider permission, or unavailable dependency. Treat a received provider rejection as executed runtime evidence, not as blocked. Use `NOT_EXECUTED` only when the user excluded the test or execution became impossible after an identified prerequisite failed. Never use either verdict solely because the interface is financial, account-opening, state-changing, or otherwise side-effecting.
 
@@ -69,7 +69,7 @@ Use only these verdict terms:
 - `OBSERVED` — useful behavior without a reliable documented expectation.
 - `BLOCKED` — missing external condition prevents execution.
 - `NOT_APPLICABLE` — the dimension does not apply.
-- `NOT_EXECUTED` — intentionally not run.
+- `NOT_EXECUTED` — excluded by the user or unreachable after a failed prerequisite.
 
 The renderer and validator hard-gate required interface structure, report sections, requested-scenario coverage, verdict validity, financial probe dimensions, external-question priority, and secret hygiene.
 
