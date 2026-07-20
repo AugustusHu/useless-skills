@@ -397,7 +397,6 @@
     }
     .table-count { color: var(--muted); font-size: 12px; }
     .table-wrap {
-      max-height: min(70vh, 720px);
       overflow: auto;
       border: 1px solid #dce2ea;
       border-radius: 7px;
@@ -517,16 +516,27 @@
     .crypto-inline + .crypto-inline { border-top: 1px solid var(--line); }
     .crypto-inline-label { color: var(--muted); font-size: 12px; }
     .crypto-inline-value { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
-    .crypto-section { padding: 10px 13px 12px; }
+    .crypto-section { padding: 0; }
     .crypto-section + .crypto-section { border-top: 1px solid var(--line); }
-    .crypto-section-title { margin: 0 0 8px; font-size: 13px; }
+    .crypto-summary {
+      display: grid;
+      grid-template-columns: 110px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      padding: 9px 13px;
+    }
+    .crypto-section-title { color: var(--muted); font-size: 12px; }
+    .crypto-algorithm code { font-size: 12px; font-weight: 700; }
+    .crypto-details { margin: 0 13px 12px; box-shadow: none; }
+    .crypto-details > summary { padding: 7px 9px; font-size: 11px; }
+    .crypto-detail-body { padding: 9px; background: #fbfcfd; }
     .crypto-grid { display: grid; grid-template-columns: 1.08fr 1fr 1fr; gap: 8px; }
     .crypto-pane { min-width: 0; padding: 9px; border: 1px solid #e1e5eb; border-radius: 6px; }
     .crypto-pane-head { display: flex; align-items: center; justify-content: space-between; gap: 7px; margin-bottom: 7px; }
     .crypto-pane-head strong { font-size: 12px; }
     .crypto-pane .kv-row { grid-template-columns: minmax(78px, 31%) minmax(0, 1fr); gap: 7px; }
-    .crypto-code summary { padding: 6px 8px; font-size: 11px; }
-    .crypto-code pre { max-height: 280px; border-radius: 0; }
+    .crypto-code-label { margin: 8px 0 4px; color: var(--muted); font-size: 10px; text-transform: uppercase; }
+    .crypto-pane pre { max-height: 280px; }
 
     .scenario-note {
       margin: 8px 0;
@@ -650,6 +660,7 @@
       .table-search { width: 100%; margin-left: 0; }
       .raw-pair { grid-template-columns: 1fr; }
       .crypto-inline { grid-template-columns: 1fr; gap: 3px; }
+      .crypto-summary { grid-template-columns: 1fr; gap: 3px; }
       .steps { display: grid; overflow: visible; }
       .step { width: 100%; }
       .arrow { display: none; }
@@ -664,7 +675,7 @@
       .panel:first-child { page-break-before: auto; }
       section { break-inside: auto; }
       .card, .finding, details, .step { break-inside: avoid; }
-      details > .detail { display: block !important; }
+      details > .detail, details > .crypto-detail-body { display: block !important; }
       .table-wrap { max-height: none; overflow: visible; }
       table { min-width: 0; font-size: 9px; }
       th, td { position: static !important; padding: 5px; box-shadow: none !important; }
@@ -773,6 +784,26 @@ function kvCard(title, rows, wide = false) {
   const card = $("div", "card" + (wide ? " wide" : ""));
   card.append($("h4", "", title), kvList(rows));
   return card;
+}
+
+function authenticationMethod(value) {
+  if (typeof value === "string") return value;
+  if (empty(value)) return "未记录";
+  for (const key of ["type", "method", "scheme", "grantType", "authenticationType"]) {
+    if (!empty(value[key])) return primitive(value[key]);
+  }
+  if (typeof value.header === "string") {
+    if (/bearer/i.test(value.header)) return "Bearer";
+    if (/basic/i.test(value.header)) return "Basic";
+    return "请求头认证";
+  }
+  if (displayStatuses.has(value.verdict)) return value.verdict;
+  const rows = flatten(value);
+  return rows.length ? primitive(rows[0][1]) : "未记录";
+}
+
+function authenticationCard(value) {
+  return kvCard("鉴权", [["方式", authenticationMethod(value)]]);
 }
 
 function listCard(title, items) {
@@ -994,38 +1025,50 @@ function cryptoPane(item, dimension, part, title, data, official = false) {
   ]));
   if (data.evidenceIds?.length) pane.append(evidenceRow(data.evidenceIds));
   if (data.code) {
-    const details = $("details", "crypto-code");
-    details.append($("summary", "", "查看可执行代码"), Object.assign($("pre"), {textContent: data.code}));
-    pane.append(details);
+    pane.append(
+      $("div", "crypto-code-label", "可执行代码"),
+      Object.assign($("pre"), {textContent: data.code})
+    );
   }
   return pane;
 }
 
+function cryptoAlgorithmName(value) {
+  const official = value?.official || value || {};
+  return official.algorithm || value?.algorithm || official.transport || value?.transport || "";
+}
+
 function cryptoSection(item, dimension, title, value) {
   const root = $("div", "crypto-section");
-  root.append($("h5", "crypto-section-title", title));
+  const summary = $("div", "crypto-summary");
+  const algorithm = $("div", "crypto-algorithm");
+  const algorithmName = cryptoAlgorithmName(value);
+  if (algorithmName) algorithm.append($("code", "", algorithmName));
+  else algorithm.append($("span", "muted", "未声明算法"));
+  summary.append($("div", "crypto-section-title", title), algorithm);
+  root.append(summary);
+  const details = $("details", "crypto-details");
+  const body = $("div", "crypto-detail-body");
   const grid = $("div", "crypto-grid");
   grid.append(
     cryptoPane(item, dimension, "official", "官方说明", value.official, true),
     cryptoPane(item, dimension, "localVerification", "本地代码实测", value.localVerification),
     cryptoPane(item, dimension, "interoperability", "真实第三方互操作", value.interoperability)
   );
-  root.append(grid);
+  body.append(grid);
+  details.append($("summary", "", "查看算法说明与验证代码"), body);
+  root.append(details);
   return root;
 }
 
 function compactCryptoRow(label, value) {
   const row = $("div", "crypto-inline");
   const result = $("div", "crypto-inline-value");
-  const rows = flatten(value);
+  const algorithmName = cryptoAlgorithmName(value);
   const status = value?.verdict || (displayStatuses.has(value?.fieldEncryption) ? value.fieldEncryption : null);
-  if (status) result.append(badge(status));
-  const description = rows
-    .filter(([key]) => !["verdict", "fieldEncryption"].includes(key))
-    .map(([key, item]) => `${cryptoLabels[key] || key}：${item}`)
-    .join("；");
-  if (description) result.append($("span", "", description));
-  if (!result.children.length) result.append($("span", "muted", "未记录"));
+  if (algorithmName) result.append($("code", "", algorithmName));
+  else if (status) result.append(badge(status));
+  else result.append($("span", "muted", "未记录"));
   row.append($("div", "crypto-inline-label", label), result);
   return row;
 }
@@ -1355,7 +1398,7 @@ function interfacePanel(item) {
   const contractGrid = $("div", "grid");
   contractGrid.append(
     kvCard("接口说明", [["用途", item.description], ["方法", item.method], ["URL", item.url]]),
-    kvCard("鉴权", flatten(item.authentication)),
+    authenticationCard(item.authentication),
     kvCard("支持机构 / 地域 / 币种", flatten(item.supportScope), true),
     cryptographyCard(item)
   );
