@@ -28,6 +28,7 @@ When a documentation link is on Yuque, fetch it with `scripts/yuque_doc.py read 
 - Execute at least one valid success probe and one deliberate failure probe for every interface. Treat this pair as the minimum coverage, not the target; continue with material field, error, state, signing, idempotency, and boundary probes.
 - Correct documented fields in place and label every correction with evidence.
 - Preserve protocol literals exactly, including field casing, headers, enums, and event names.
+- Write observed-result and integration-correction narratives in Chinese. Keep exact protocol literals inside the Chinese explanation rather than translating them.
 - Explain authentication, signing, encryption, errors, support scope, limitations, and external questions.
 - Collect official institution, region, and currency support first. Show the complete declaration inline when practical; for large or dynamic catalogs, explain the official interface or document path used to retrieve them.
 - Where signing, verification, encryption, or decryption applies, separate the sourced official algorithm contract, executable local code verification, and real provider interoperability. Include a reusable code example in the default-collapsed detail. Never treat a local round trip as proof of provider compatibility.
