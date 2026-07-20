@@ -492,6 +492,14 @@
     }
     .raw-message { min-width: 0; margin-top: 6px; }
     .raw-title { margin: 0 0 4px; color: var(--muted); font-size: 10px; letter-spacing: .04em; text-transform: uppercase; }
+    .raw-note {
+      margin-top: 5px;
+      padding-left: 9px;
+      border-left: 2px solid #cbd3df;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
     pre {
       max-height: 520px;
       overflow: auto;
@@ -1254,8 +1262,19 @@ function rawMessages(item) {
   const pair = $("div", "raw-pair");
   const request = $("div", "raw-message");
   const response = $("div", "raw-message");
-  request.append($("div", "raw-title", "完整脱敏 Request"), Object.assign($("pre"), {textContent: pretty(item.request)}));
-  response.append($("div", "raw-title", "完整脱敏 Response"), Object.assign($("pre"), {textContent: pretty(item.response)}));
+  const displayMessage = value => {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return value;
+    return Object.fromEntries(Object.entries(value).filter(([key]) => !["bodyRaw", "redaction"].includes(key)));
+  };
+  const displayRedaction = value => primitive(value)
+    .replace(/\bbodyRaw\b/g, "原始请求报文字节")
+    .replace(/\s*原始请求报文字节\s*/g, "原始请求报文字节");
+  const appendMessage = (container, title, value) => {
+    container.append($("div", "raw-title", title), Object.assign($("pre"), {textContent: pretty(displayMessage(value))}));
+    if (value?.redaction) container.append($("div", "raw-note", `脱敏说明：${displayRedaction(value.redaction)}`));
+  };
+  appendMessage(request, "完整脱敏 Request", item.request);
+  appendMessage(response, "完整脱敏 Response", item.response);
   pair.append(request, response);
   root.append(pair);
   return root;

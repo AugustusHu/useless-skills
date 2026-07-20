@@ -113,6 +113,7 @@ Keep the results in the same request-field row. Use `documented`, `observed`, `c
 ```
 
 Requests and responses must be complete enough to implement the interface, but redacted before entering this model.
+`bodyRaw` may remain in evidence data when byte-for-byte signing or serialization differences matter, but the HTML report must not display it beside `body`. Treat `redaction` as report metadata and render it as a human-readable note outside the protocol message, never as a request or response field. The note must describe the affected protocol data without exposing internal evidence keys such as `bodyRaw`.
 
 ## Cryptographic evidence
 
