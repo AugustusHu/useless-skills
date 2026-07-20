@@ -17,7 +17,7 @@ Record these as `probeOutcome: SUCCESS` and `probeOutcome: FAILURE`. This descri
 - response shape and content type;
 - idempotency and duplicate references;
 - signing and encryption fidelity;
-- support lists, institutions, currencies, countries, or regions when relevant.
+- interface-level institution catalogs and system-level region support when relevant.
 
 Two probes are only the floor. Do not convert untested dimensions into broad conclusions after the minimum pair. Prefer a valid baseline with one material variable changed, and add cases while new probes can resolve material uncertainty.
 
@@ -25,7 +25,9 @@ Two probes are only the floor. Do not convert untested dimensions into broad con
 
 Before testing, collect the original official declaration for every request field, response field, and error code: name, type, requiredness, constraints, enums, examples, conditional rules, and exact source page or section. Also identify each request field's source or generation rule and each response field's integration action or mapping. When the official material is silent or contradictory, record that fact with the pages searched; do not replace it with an inferred declaration.
 
-Collect official institution, region, and currency support separately from runtime observations. Keep complete small catalogs inline. For large or dynamic catalogs, record the official list/query interface or documentation route, method, parameters, authentication, and usage instructions so the reader can retrieve the current data.
+Collect official region support once at system level and summarize it in the report overview with full Chinese names, for example `支持尼日利亚、菲律宾、俄罗斯。` Do not repeat regions per interface. Collect institution support only for interfaces that select, return, or depend on institutions, keeping official declarations separate from runtime observations. Keep complete small institution catalogs inline. For large or dynamic catalogs, record the official list/query interface or documentation route, method, parameters, authentication, and usage instructions so the reader can retrieve the current data.
+
+Do not collect or render a currency catalog as a support-scope dimension. When an interface contains a currency field or transfers an amount, validate currency through that field's documented contract and the `AMOUNT` or routing constraint evidence.
 
 ## Material field constraints
 

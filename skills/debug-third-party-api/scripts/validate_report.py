@@ -108,7 +108,7 @@ INTERFACE_KEYS = {
     "authentication",
     "signing",
     "encryption",
-    "supportScope",
+    "institutionSupport",
     "requestFields",
     "responseFields",
     "errorCodes",
@@ -197,17 +197,40 @@ def validate_crypto_dimension(
             errors.append(f"{section_path}.code is required as a reusable example")
 
 
-def validate_support_scope(value: Any, path: str, errors: list[str]) -> None:
+def validate_region_support(value: Any, path: str, errors: list[str]) -> None:
+    if not isinstance(value, dict):
+        errors.append(f"{path} must be an object")
+        return
+    if not isinstance(value.get("summary"), str) or not value["summary"].strip():
+        errors.append(f"{path}.summary is required")
+    validate_source_refs(value.get("sourceRefs"), f"{path}.sourceRefs", errors)
+
+
+def validate_institution_support(value: Any, path: str, errors: list[str]) -> None:
     if not isinstance(value, dict):
         errors.append(f"{path} must be an object")
         return
     verdict = value.get("verdict")
     if verdict not in VERDICTS:
         errors.append(f"{path}.verdict is invalid")
+    if verdict == "NOT_APPLICABLE":
+        if not value.get("detail"):
+            errors.append(f"{path}.detail is required when not applicable")
+        return
     official = value.get("official")
     if not isinstance(official, dict) or not official:
-        errors.append(f"{path}.official must contain the documented support scope")
+        errors.append(f"{path}.official must contain documented institution support")
         return
+    for section_name in ("official", "observed"):
+        section = value.get(section_name)
+        if not isinstance(section, dict):
+            continue
+        forbidden = sorted({"regions", "countries", "currencies"} & set(section))
+        if forbidden:
+            errors.append(
+                f"{path}.{section_name} must not contain system regions or currencies: "
+                f"{', '.join(forbidden)}"
+            )
     mode = official.get("catalogMode")
     if mode not in CATALOG_MODES:
         errors.append(f"{path}.official.catalogMode must be INLINE or RETRIEVAL")
@@ -222,7 +245,7 @@ def validate_support_scope(value: Any, path: str, errors: list[str]) -> None:
         if key not in {"catalogMode", "sourceRefs"} and item not in (None, "", [], {})
     }
     if not scope_values:
-        errors.append(f"{path}.official must describe the declared support scope")
+        errors.append(f"{path}.official must describe institution support")
     observed = value.get("observed")
     if not isinstance(observed, dict) or not observed:
         errors.append(f"{path}.observed must contain runtime observations")
@@ -335,6 +358,7 @@ def validate_data(data: dict[str, Any]) -> list[str]:
     input_data = data.get("input", {})
     if not meta.get("provider"):
         errors.append("meta.provider is required")
+    validate_region_support(data.get("regionSupport"), "regionSupport", errors)
     if not input_data.get("documentation"):
         errors.append("input.documentation is required")
     if "environment" not in input_data:
@@ -360,9 +384,9 @@ def validate_data(data: dict[str, Any]) -> list[str]:
                 "signing",
                 errors,
             )
-            validate_support_scope(
-                interface.get("supportScope"),
-                f"interfaces[{index}].supportScope",
+            validate_institution_support(
+                interface.get("institutionSupport"),
+                f"interfaces[{index}].institutionSupport",
                 errors,
             )
             validate_crypto_dimension(
@@ -547,6 +571,8 @@ def validate_html(html: str, data: dict[str, Any]) -> list[str]:
         "失败探测",
         "官方获取方式",
         "可执行代码示例",
+        "全系统支持地域",
+        "支持机构",
     ):
         if marker not in html:
             errors.append(f"HTML missing marker: {marker}")

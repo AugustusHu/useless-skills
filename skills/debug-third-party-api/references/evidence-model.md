@@ -23,6 +23,10 @@ Store one JSON object. Empty dimensions must be explicit rather than omitted.
     "businessTerms": {},
     "protocolLiterals": []
   },
+  "regionSupport": {
+    "summary": "支持尼日利亚、菲律宾、俄罗斯。",
+    "sourceRefs": ["https://docs.provider.example/regions"]
+  },
   "interfaces": [
     {
       "id": "interface-1",
@@ -33,7 +37,7 @@ Store one JSON object. Empty dimensions must be explicit rather than omitted.
       "authentication": {},
       "signing": {},
       "encryption": {},
-      "supportScope": {},
+      "institutionSupport": {},
       "requestFields": [],
       "responseFields": [],
       "errorCodes": [],
@@ -152,7 +156,25 @@ Keep all results in the same request-field row. The renderer summarizes the cons
 }
 ```
 
-## Support scope
+## Region support
+
+Keep region support at report level because it describes the whole system, not one
+institution or interface. Render only the concise `summary` in the overview, with
+source links available for traceability:
+
+```json
+{
+  "summary": "支持尼日利亚、菲律宾、俄罗斯。",
+  "sourceRefs": ["https://docs.provider.example/regions"]
+}
+```
+
+Use full Chinese country or region names rather than protocol codes in `summary`.
+Do not repeat region support inside interface records.
+
+## Institution support
+
+Use `institutionSupport` only for the institution dimension of an interface:
 
 ```json
 {
@@ -160,8 +182,6 @@ Keep all results in the same request-field row. The renderer summarizes the cons
   "official": {
     "catalogMode": "RETRIEVAL",
     "institutions": "Dynamic institution catalog",
-    "regions": ["NG"],
-    "currencies": ["NGN"],
     "sourceRefs": ["https://docs.provider.example/institutions"]
   },
   "observed": {
@@ -179,6 +199,19 @@ Keep all results in the same request-field row. The renderer summarizes the cons
 ```
 
 Use `catalogMode: INLINE` when the complete official declaration is practical to display. Use `RETRIEVAL` for large or dynamic data and provide enough official retrieval information for the reader to obtain the current catalog. Keep `official` and `observed` separate.
+
+When an interface does not select, return, or depend on an institution, keep the
+dimension explicit without showing an institution card:
+
+```json
+{
+  "verdict": "NOT_APPLICABLE",
+  "detail": "This interface does not select, return, or depend on an institution."
+}
+```
+
+Never place regions, countries, or currencies in `institutionSupport`. Currency
+remains part of an actual interface field or `AMOUNT` constraint when applicable.
 
 ## Case records
 

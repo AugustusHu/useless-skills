@@ -1,6 +1,6 @@
 ---
 name: debug-third-party-api
-description: Validate third-party API documentation against real test-environment behavior and produce a consistent single-file HTML evidence report. Use when Codex must extract a documentation URL, executable test environment, interface scope, and optional scenarios; inspect official contracts; call in-scope APIs; compare documented and observed behavior; explain cross-interface flows; or report ambiguities, errors, signing, encryption, supported institutions, regions, and external questions.
+description: Validate third-party API documentation against real test-environment behavior and produce a consistent single-file HTML evidence report. Use when Codex must extract a documentation URL, executable test environment, interface scope, and optional scenarios; inspect official contracts; call in-scope APIs; compare documented and observed behavior; explain cross-interface flows; or report ambiguities, errors, signing, encryption, system-level regions, interface-level institutions, and external questions.
 ---
 
 # Third-Party API Debug
@@ -29,8 +29,10 @@ When a documentation link is on Yuque, fetch it with `scripts/yuque_doc.py read 
 - Correct documented fields in place and label every correction with evidence.
 - Preserve protocol literals exactly, including field casing, headers, enums, and event names.
 - Write observed-result and integration-correction narratives in Chinese. Keep exact protocol literals inside the Chinese explanation rather than translating them.
-- Explain authentication, signing, encryption, errors, support scope, limitations, and external questions.
-- Collect official institution, region, and currency support first. Show the complete declaration inline when practical; for large or dynamic catalogs, explain the official interface or document path used to retrieve them.
+- Explain authentication, signing, encryption, errors, system-level region support, interface-level institution support, limitations, and external questions.
+- Collect official system-level region support once for the report overview and summarize it plainly, for example `支持尼日利亚、菲律宾、俄罗斯。`
+- Collect institution support only for interfaces that select, return, or otherwise depend on an institution. Keep complete small catalogs inline; for large or dynamic catalogs, explain the official interface or document path used to retrieve them.
+- Do not treat currency catalogs as a support-scope report dimension. Validate currency only when it is an actual interface field or an amount constraint.
 - Where signing, verification, encryption, or decryption applies, separate the sourced official algorithm contract, executable local code verification, and real provider interoperability. Include a reusable code example in the default-collapsed detail. Never treat a local round trip as proof of provider compatibility.
 - Identify material request fields before testing and preserve their constraint evidence in the existing field rows. Cover funds, contact and account data, cards, identity, institutions, identifiers and idempotency, routing enums, time, free text, callbacks, and cryptographic inputs when applicable. Every required constraint dimension needs an official statement or explicit official absence, an observation or concrete non-execution reason, a verdict, and evidence for executed claims.
 - Treat date/time fields as precision-sensitive. Verify the exact format and timezone; for timestamps, verify number vs string and seconds vs milliseconds.
