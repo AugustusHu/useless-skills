@@ -31,24 +31,11 @@ Do not collect or render a currency catalog as a support-scope dimension. When a
 
 ## Material field constraints
 
-Classify material request fields before choosing cases. A field is material when it can affect funds or units, provider acceptance, sensitive-data handling, idempotency or reconciliation, status or routing, or supported capability. Use the applicable profile and probe each dimension independently:
-
-- `AMOUNT`: currency, unit, precision, rounding, minimum, maximum, inclusive boundary behavior, accepted format, and aggregate limits.
-- `PHONE`: format, country-code handling, length, character set, supported countries or operators, and normalization.
-- `ACCOUNT_NUMBER`: format, length, character set, checksum, leading-zero handling, separators, and masking or encryption.
-- `ACCOUNT_NAME`: format, minimum and maximum length, character set, punctuation, whitespace, Unicode or local language, matching behavior, and masking.
-- `CARD`: format, length, character set, validation, token or expiry semantics, and storage or logging restrictions.
-- `IDENTITY`: format, length, character set, type-dependent rules, date semantics, and masking or encryption.
-- `INSTITUTION`: format, length, provider mapping, source or binding, and supported scope.
-- `IDENTIFIER`: format, length, character set, source or generation, uniqueness, duplicate behavior, and internal-to-provider reconciliation.
-- `ENUM_ROUTING`: values, supported scope, explicit routing party, mapping, routing behavior, and unknown-value fallback.
-- `DATETIME`: format, timezone, number versus string, seconds versus milliseconds, precision, and expiry or timeout behavior.
-- `TEXT`: length, character set, special characters, Unicode, newlines, and escaping or injection behavior.
-- `CALLBACK_SECURITY`: format, HTTPS, domain policy, length, encoding, algorithm or canonicalization, and verification-failure behavior.
+Before choosing cases, read [material-field-profiles.json](material-field-profiles.json), the canonical material-field profile catalog. Use `appliesWhen` for semantic classification; treat `fieldNamePattern` only as a detection hint. Probe every entry in the selected profile's `dimensions` object independently. Update the JSON instead of duplicating profiles in Markdown or Python.
 
 Use a valid baseline and change one dimension at a time. In the supplied test environment, execute the write or lifecycle operation needed to establish each material boundary. Reuse the resulting test resource across related probes when that preserves independence, and use documented cleanup or reversal interfaces when they are part of the scope.
 
-For every request field, explicitly decide whether a material profile applies; do not omit `criticalFieldCategory`. For a material field, record every required dimension in `constraintEvidence`. An untested or undocumented dimension remains explicit with its own verdict and reason. Summarize the result in the existing request-field row under documented, observed, correction, and evidence; do not create a separate constraint report.
+For every request field, explicitly decide whether a material profile applies; do not omit `criticalFieldCategory`. For a material field, copy every configured dimension into `constraintEvidence`. An untested or undocumented dimension remains explicit with its own verdict and reason. Summarize the result in the existing request-field row under documented, observed, correction, and evidence; do not create a separate constraint report.
 
 ## Scenario coverage
 

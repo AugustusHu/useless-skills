@@ -1,0 +1,170 @@
+{
+  "version": 1,
+  "profiles": [
+    {
+      "id": "AMOUNT",
+      "appliesWhen": "The field carries an amount, balance, fee, or other monetary value.",
+      "fieldNamePattern": "(?:amount|balance)$",
+      "dimensions": {
+        "currency": "Accepted currency codes and cross-field currency consistency.",
+        "unit": "Major versus minor units and any scaling rule.",
+        "precision": "Allowed decimal or fractional precision.",
+        "rounding": "Rounding or truncation behavior.",
+        "minimum": "Minimum accepted value.",
+        "maximum": "Maximum accepted value.",
+        "boundary": "Inclusive or exclusive boundary behavior.",
+        "format": "Accepted number or string representation.",
+        "aggregateLimits": "Per-request, daily, or other aggregate limits."
+      }
+    },
+    {
+      "id": "PHONE",
+      "appliesWhen": "The field carries a phone, mobile, MSISDN, or telephone number.",
+      "fieldNamePattern": "(?:phone|phoneno|mobile|mobileno|msisdn|telephone)$",
+      "dimensions": {
+        "format": "Accepted local, national, or E.164 representation.",
+        "countryCode": "Country-code requirements and handling.",
+        "length": "Minimum, maximum, and exact length rules.",
+        "charset": "Accepted digits, prefixes, separators, and symbols.",
+        "supportedCountries": "Supported countries, regions, or operators.",
+        "normalization": "Provider normalization and returned canonical form."
+      }
+    },
+    {
+      "id": "ACCOUNT_NUMBER",
+      "appliesWhen": "The field identifies a bank, wallet, or payment account.",
+      "fieldNamePattern": "(?:accountno|accountnumber|walletno|walletnumber|iban)$",
+      "dimensions": {
+        "format": "Accepted account-number representation.",
+        "length": "Minimum, maximum, and institution-dependent length.",
+        "charset": "Accepted character set.",
+        "checksum": "Checksum or structural validation.",
+        "leadingZero": "Preservation and handling of leading zeroes.",
+        "separators": "Acceptance of spaces, dashes, or other separators.",
+        "maskingEncryption": "Masking, encryption, transport, and logging requirements."
+      }
+    },
+    {
+      "id": "ACCOUNT_NAME",
+      "appliesWhen": "The field carries an account, wallet, payee, or beneficiary name.",
+      "fieldNamePattern": "(?:accountname|walletname|payeename|beneficiaryname)$",
+      "dimensions": {
+        "format": "Accepted name structure.",
+        "minimumLength": "Minimum accepted length.",
+        "maximumLength": "Maximum accepted length.",
+        "charset": "Accepted character set.",
+        "punctuation": "Accepted punctuation and symbols.",
+        "whitespace": "Leading, trailing, repeated, and internal whitespace handling.",
+        "unicode": "Unicode and local-language support.",
+        "matching": "Exact, normalized, fuzzy, or provider-specific matching behavior.",
+        "masking": "Masking and logging requirements."
+      }
+    },
+    {
+      "id": "CARD",
+      "appliesWhen": "The field carries card data, expiry data, a security code, or a card token.",
+      "fieldNamePattern": "(?:cardno|cardnumber|pan|expirydate|cvv|cvc|cardtoken|cardbin)$",
+      "dimensions": {
+        "format": "Accepted card or token representation.",
+        "length": "Allowed length by card-data type.",
+        "charset": "Accepted character set.",
+        "validation": "Luhn, expiry, BIN, token, or related validation.",
+        "tokenExpiry": "Token and expiry semantics.",
+        "storageLogging": "Storage, masking, encryption, and logging restrictions."
+      }
+    },
+    {
+      "id": "IDENTITY",
+      "appliesWhen": "The field carries an identity number, identity type, or identity-related date.",
+      "fieldNamePattern": "(?:idtype|idno|identitynumber|nin|bvn|dateofbirth|dob)$",
+      "dimensions": {
+        "format": "Accepted identity representation.",
+        "length": "Minimum, maximum, or exact length.",
+        "charset": "Accepted character set.",
+        "typeDependency": "Rules that depend on identity type, country, or issuer.",
+        "dateSemantics": "Date format, timezone, age, and boundary semantics.",
+        "maskingEncryption": "Masking, encryption, transport, and logging requirements."
+      }
+    },
+    {
+      "id": "INSTITUTION",
+      "appliesWhen": "The field selects or identifies a bank, merchant, or other institution.",
+      "fieldNamePattern": "(?:bankcode|swiftcode|bic|merchantid|institutioncode|institutionid)$",
+      "dimensions": {
+        "format": "Accepted institution identifier representation.",
+        "length": "Minimum, maximum, or exact identifier length.",
+        "providerMapping": "Mapping between internal and provider institution identifiers.",
+        "sourceBinding": "Authoritative catalog, source, and binding rule.",
+        "supportScope": "Supported institutions and relevant catalog scope."
+      }
+    },
+    {
+      "id": "IDENTIFIER",
+      "appliesWhen": "The field identifies, correlates, reconciles, or deduplicates a request or resource.",
+      "fieldNamePattern": "(?:requestreference|customerreference|orderid|transactionid|channelorderid|channelresponseid|idempotencykey)$",
+      "dimensions": {
+        "format": "Accepted identifier representation.",
+        "length": "Minimum, maximum, or exact length.",
+        "charset": "Accepted character set.",
+        "sourceGeneration": "Generating party and generation rule.",
+        "uniqueness": "Uniqueness scope and enforcement.",
+        "duplicateBehavior": "Behavior for repeated or reused values.",
+        "reconciliation": "Mapping between caller and provider identifiers."
+      }
+    },
+    {
+      "id": "ENUM_ROUTING",
+      "appliesWhen": "The field controls routing, capability, status, country, currency, party, or action selection.",
+      "fieldNamePattern": "(?:currency|currencycode|country|countrycode|party|businesstype|ability|action|status)$",
+      "dimensions": {
+        "values": "Official enum values and exact protocol literals.",
+        "supportScope": "Supported values and capability scope.",
+        "routingParty": "Party responsible for selecting the value.",
+        "mapping": "Mapping between internal and provider values.",
+        "routingBehavior": "Behavior selected by each value.",
+        "unknownFallback": "Behavior for unknown, omitted, or unsupported values."
+      }
+    },
+    {
+      "id": "DATETIME",
+      "appliesWhen": "The field carries a date, time, timestamp, expiry, or timeout value.",
+      "fieldNamePattern": "(?:timestamp|transactiontime|expirytime|createdat|updatedat|requestedat|datetime)$",
+      "dimensions": {
+        "format": "Exact date or time format.",
+        "timezone": "Timezone requirement and normalization.",
+        "valueType": "Number versus string representation.",
+        "timestampUnit": "Seconds versus milliseconds or another epoch unit.",
+        "precision": "Supported fractional or sub-second precision.",
+        "expiryTimeout": "Expiry, timeout, and boundary behavior."
+      }
+    },
+    {
+      "id": "TEXT",
+      "appliesWhen": "The field carries free text such as narration, remarks, descriptions, or message content.",
+      "fieldNamePattern": "(?:narration|remark|description|smscontent)$",
+      "dimensions": {
+        "length": "Minimum and maximum length.",
+        "charset": "Accepted character set.",
+        "specialCharacters": "Accepted punctuation and symbols.",
+        "unicode": "Unicode and local-language support.",
+        "newlines": "Newline and multiline handling.",
+        "escaping": "Escaping, serialization, and injection behavior."
+      }
+    },
+    {
+      "id": "CALLBACK_SECURITY",
+      "appliesWhen": "The field carries a callback URL, return URL, webhook URL, or signature input.",
+      "fieldNamePattern": "(?:callbackurl|returnurl|webhookurl|signature|sign)$",
+      "dimensions": {
+        "format": "Accepted URL or signature representation.",
+        "https": "HTTPS requirement and transport security.",
+        "domainPolicy": "Allowed domains, hosts, ports, and IP policies.",
+        "length": "Minimum and maximum length.",
+        "encoding": "Character and byte encoding.",
+        "algorithm": "Signing, verification, or cryptographic algorithm.",
+        "canonicalization": "Exact bytes, serialization, and canonicalization rules.",
+        "failureHandling": "Behavior when validation or verification fails."
+      }
+    }
+  ]
+}

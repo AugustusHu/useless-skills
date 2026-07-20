@@ -30,7 +30,7 @@ When a documentation link is on Yuque, fetch it with `scripts/yuque_doc.py read 
 - Put system regions only in the overview, for example `支持尼日利亚、菲律宾、俄罗斯。`, and institutions only on relevant interfaces. Omit currency catalogs from support scope; test currency fields and amount constraints normally.
 - State authentication, limitations, and external questions.
 - For signing or encryption, separate the official contract, local code verification, and real provider interoperability. Include reusable code and never treat a local round trip as interoperability proof.
-- Classify material request fields before testing. Keep every required constraint dimension in its field row with the official claim or absence, observation or non-execution reason, verdict, and evidence.
+- Classify material request fields before testing with [material-field-profiles.json](references/material-field-profiles.json). Keep every required dimension in its field row with the official claim or absence, observation or non-execution reason, verdict, and evidence.
 - Show useful cross-interface flows without claiming unobserved behavior.
 - Produce one self-contained HTML report with one tab per interface.
 
