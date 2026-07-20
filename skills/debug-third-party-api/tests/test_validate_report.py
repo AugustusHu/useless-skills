@@ -7,6 +7,7 @@ from pathlib import Path
 
 
 SCRIPT = Path(__file__).parents[1] / "scripts" / "validate_report.py"
+TEMPLATE = Path(__file__).parents[1] / "assets" / "report-template.html"
 SPEC = importlib.util.spec_from_file_location("validate_report", SCRIPT)
 validate_report = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader
@@ -70,6 +71,30 @@ def report_data() -> dict:
 
 
 class ProbeCoverageTest(unittest.TestCase):
+    def test_side_effects_support_resource_ids_contract(self) -> None:
+        template = TEMPLATE.read_text()
+        self.assertIn("item.resourceIds?.length", template)
+        self.assertIn("item.summary", template)
+        self.assertNotIn(
+            "`${item.class} × ${item.count}：${item.detail || \"\"}`",
+            template,
+        )
+
+    def test_raw_messages_have_copy_control(self) -> None:
+        template = TEMPLATE.read_text()
+        self.assertIn('$("button", "copy-raw-button")', template)
+        self.assertIn("navigator.clipboard?.writeText", template)
+        self.assertIn('button.classList.add("copied")', template)
+
+    def test_client_id_is_treated_as_credential_data(self) -> None:
+        data = report_data()
+        data["input"]["environment"]["clientId"] = "visible-client-id"
+        errors = validate_report.validate_data(data)
+        self.assertIn(
+            "sensitive value is not redacted: input.environment.clientId",
+            errors,
+        )
+
     def test_accepts_success_and_failure_probe(self) -> None:
         self.assertEqual(validate_report.validate_data(report_data()), [])
 
