@@ -102,6 +102,7 @@ Keep the results in the same request-field row. Use `documented`, `observed`, `c
 {
   "id": "B-01",
   "name": "Successful request",
+  "probeOutcome": "SUCCESS",
   "verdict": "PASS",
   "documented": {},
   "observed": {},
@@ -111,6 +112,13 @@ Keep the results in the same request-field row. Use `documented`, `observed`, `c
   "notes": []
 }
 ```
+
+`probeOutcome` is required for every executed case:
+
+- `SUCCESS` — the request reached the interface's documented successful business outcome.
+- `FAILURE` — the provider rejected the request or returned a failed business outcome intentionally exercised by the probe.
+
+It is independent of `verdict`: a `SUCCESS` probe can expose a `DOCUMENT_MISMATCH`, and a correctly documented `FAILURE` probe can be `PASS`. Every interface must contain at least one executed case of each outcome. Blocked or unexecuted intentions do not satisfy this coverage.
 
 Requests and responses must be complete enough to implement the interface, but redacted before entering this model.
 `bodyRaw` may remain in evidence data when byte-for-byte signing or serialization differences matter, but the HTML report must not display it beside `body`. Treat `redaction` as report metadata and render it as a human-readable note outside the protocol message, never as a request or response field. The note must describe the affected protocol data without exposing internal evidence keys such as `bodyRaw`.

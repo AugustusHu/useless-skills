@@ -1,12 +1,16 @@
 # Test strategy
 
-Select the smallest set that establishes an implementable contract and exposes material risk.
+Build enough independent runtime evidence to establish an implementable contract and expose material risk.
 
 ## Interface coverage
 
-Consider:
+Every interface requires, at minimum:
 
-- one valid request;
+- one valid request that reaches the documented successful business outcome;
+- one deliberately invalid request that reaches a provider rejection or documented failed business outcome.
+
+Record these as `probeOutcome: SUCCESS` and `probeOutcome: FAILURE`. This describes the API outcome, independently of the documentation verdict. Then probe the material dimensions that apply:
+
 - authentication absence or invalidity;
 - required-field, type, enum, and boundary behavior;
 - documented error cases;
@@ -15,7 +19,7 @@ Consider:
 - signing and encryption fidelity;
 - support lists, institutions, currencies, countries, or regions when relevant.
 
-Do not run meaningless combinations. Prefer a valid baseline with one material variable changed.
+Two probes are only the floor. Do not convert untested dimensions into broad conclusions after the minimum pair. Prefer a valid baseline with one material variable changed, and add cases while new probes can resolve material uncertainty.
 
 ## Financial critical fields
 

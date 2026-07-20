@@ -283,6 +283,18 @@
     .priority-badge.P0 { color: #87413b; background: #f7ecea; border-color: #ecd1cd; }
     .priority-badge.P1 { color: #76551f; background: #f8f2e6; border-color: #eadbbc; }
     .priority-badge.P2 { color: #596273; background: #edf0f4; border-color: #dce1e8; }
+    .probe-outcome {
+      display: inline-flex;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 10px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .probe-outcome.SUCCESS { color: #176c4a; background: #e8f5ef; border-color: #c8e7da; }
+    .probe-outcome.FAILURE { color: #943f38; background: #f8ecea; border-color: #edcfcb; }
+    .probe-outcome.UNKNOWN { color: var(--muted); background: #f3f5f7; border-color: #dce1e8; }
 
     .kv { display: grid; gap: 6px; }
     .kv-row {
@@ -741,6 +753,11 @@ const primitive = value => {
 const safeId = value => String(value || "item").replace(/[^A-Za-z0-9_-]+/g, "-");
 const badge = value => $("span", "badge " + (value || "NOT_EXECUTED"), value || "NOT_EXECUTED");
 const priorityBadge = value => $("span", "priority-badge " + value, value);
+const probeOutcomeBadge = value => {
+  const outcome = value === "SUCCESS" || value === "FAILURE" ? value : "UNKNOWN";
+  const label = outcome === "SUCCESS" ? "成功探测" : outcome === "FAILURE" ? "失败探测" : "未标注结果";
+  return $("span", "probe-outcome " + outcome, label);
+};
 
 function section(title) {
   const root = $("section");
@@ -1316,6 +1333,7 @@ function caseList(item) {
       $("code", "", testCase.id || "CASE"),
       $("span", "grow", testCase.name || "Unnamed"),
       meta,
+      probeOutcomeBadge(testCase.probeOutcome),
       badge(testCase.verdict)
     );
     const detail = $("div", "detail");

@@ -20,6 +20,8 @@ VERDICTS = {
     "NOT_EXECUTED",
 }
 QUESTION_PRIORITIES = {"P0", "P1", "P2"}
+PROBE_OUTCOMES = {"SUCCESS", "FAILURE"}
+EXECUTED_VERDICTS = {"PASS", "DOCUMENT_MISMATCH", "OBSERVED"}
 FINANCIAL_FIELD_CATEGORIES = {
     "AMOUNT",
     "PHONE",
@@ -106,7 +108,7 @@ def validate_crypto_dimension(
             errors.append(f"{section_path}.verdict is invalid")
         if not section.get("observed"):
             errors.append(f"{section_path}.observed is required")
-        executed = verdict in {"PASS", "DOCUMENT_MISMATCH", "OBSERVED"}
+        executed = verdict in EXECUTED_VERDICTS
         if executed and not section.get("evidenceIds"):
             errors.append(f"{section_path}.evidenceIds is required for executed claims")
         if section_name == "localVerification" and executed and not section.get("code"):
@@ -125,7 +127,7 @@ def validate_contract_row(
     if verdict not in VERDICTS:
         errors.append(f"{path}.verdict is invalid")
         return
-    executed = verdict in {"PASS", "DOCUMENT_MISMATCH", "OBSERVED"}
+    executed = verdict in EXECUTED_VERDICTS
     if executed and not row.get("evidenceIds"):
         errors.append(f"{path}.evidenceIds is required for executed claims")
     if verdict == "DOCUMENT_MISMATCH" and not row.get("correction"):
@@ -169,11 +171,45 @@ def validate_data(data: dict[str, Any]) -> list[str]:
                 "encryption",
                 errors,
             )
-            for case_index, case in enumerate(interface.get("cases", [])):
-                if case.get("verdict") not in VERDICTS:
+            probe_outcomes: set[str] = set()
+            cases = interface.get("cases", [])
+            if not isinstance(cases, list):
+                errors.append(f"interfaces[{index}].cases must be a list")
+                cases = []
+            for case_index, case in enumerate(cases):
+                case_path = f"interfaces[{index}].cases[{case_index}]"
+                if not isinstance(case, dict):
+                    errors.append(f"{case_path} must be an object")
+                    continue
+                verdict = case.get("verdict")
+                if verdict not in VERDICTS:
                     errors.append(
-                        f"interfaces[{index}].cases[{case_index}] has invalid verdict"
+                        f"{case_path} has invalid verdict"
                     )
+                elif verdict not in EXECUTED_VERDICTS:
+                    errors.append(
+                        f"{case_path} must be an executed probe; "
+                        "blocked or unexecuted intentions do not belong in cases"
+                    )
+                elif not case.get("evidenceIds"):
+                    errors.append(f"{case_path}.evidenceIds is required")
+                outcome = case.get("probeOutcome")
+                if outcome not in PROBE_OUTCOMES:
+                    errors.append(
+                        f"{case_path}.probeOutcome must be SUCCESS or FAILURE"
+                    )
+                elif verdict in EXECUTED_VERDICTS:
+                    probe_outcomes.add(outcome)
+                for message_name in ("request", "response"):
+                    message = case.get(message_name)
+                    if not isinstance(message, dict) or not message:
+                        errors.append(f"{case_path}.{message_name} is required")
+            missing_outcomes = sorted(PROBE_OUTCOMES - probe_outcomes)
+            if missing_outcomes:
+                errors.append(
+                    f"interfaces[{index}] missing executed probe outcomes: "
+                    f"{', '.join(missing_outcomes)}"
+                )
             for field_group in ("requestFields", "responseFields"):
                 for field_index, field in enumerate(interface.get(field_group, [])):
                     validate_contract_row(
@@ -297,6 +333,8 @@ def validate_html(html: str, data: dict[str, Any]) -> list[str]:
         "仅修订",
         "完整脱敏 Request",
         "完整脱敏 Response",
+        "成功探测",
+        "失败探测",
     ):
         if marker not in html:
             errors.append(f"HTML missing marker: {marker}")

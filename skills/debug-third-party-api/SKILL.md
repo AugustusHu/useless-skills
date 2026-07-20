@@ -24,6 +24,7 @@ When a documentation link is on Yuque, fetch it with `scripts/yuque_doc.py read 
 
 - Establish the documented contract for every in-scope interface.
 - Capture real request and response evidence for every executable in-scope interface.
+- Execute at least one valid success probe and one deliberate failure probe for every interface. Treat this pair as the minimum coverage, not the target; continue with material field, error, state, signing, idempotency, and boundary probes.
 - Correct documented fields in place and label every correction with evidence.
 - Preserve protocol literals exactly, including field casing, headers, enums, and event names.
 - Explain authentication, signing, encryption, errors, support scope, limitations, and external questions.
@@ -71,7 +72,7 @@ Use only these verdict terms:
 - `NOT_APPLICABLE` — the dimension does not apply.
 - `NOT_EXECUTED` — excluded by the user or unreachable after a failed prerequisite.
 
-The renderer and validator hard-gate required interface structure, report sections, requested-scenario coverage, verdict validity, financial probe dimensions, external-question priority, and secret hygiene.
+The renderer and validator hard-gate required interface structure, per-interface success/failure probe coverage, report sections, requested-scenario coverage, verdict validity, financial probe dimensions, external-question priority, and secret hygiene.
 
 Review the parts that still require judgment:
 
