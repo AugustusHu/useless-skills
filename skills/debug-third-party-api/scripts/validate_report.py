@@ -22,18 +22,83 @@ VERDICTS = {
 QUESTION_PRIORITIES = {"P0", "P1", "P2"}
 PROBE_OUTCOMES = {"SUCCESS", "FAILURE"}
 EXECUTED_VERDICTS = {"PASS", "DOCUMENT_MISMATCH", "OBSERVED"}
-FINANCIAL_FIELD_CATEGORIES = {
+MATERIAL_FIELD_CATEGORIES = {
     "AMOUNT",
     "PHONE",
     "ACCOUNT_NUMBER",
     "ACCOUNT_NAME",
+    "CARD",
+    "IDENTITY",
+    "INSTITUTION",
+    "IDENTIFIER",
+    "ENUM_ROUTING",
+    "DATETIME",
+    "TEXT",
+    "CALLBACK_SECURITY",
 }
-REQUIRED_PROBE_DIMENSIONS = {
-    "AMOUNT": {"minimum", "maximum", "unit", "format"},
-    "PHONE": {"format", "supportedCountries"},
-    "ACCOUNT_NUMBER": {"format"},
-    "ACCOUNT_NAME": {"format"},
+REQUIRED_CONSTRAINT_DIMENSIONS = {
+    "AMOUNT": {
+        "currency", "unit", "precision", "rounding", "minimum", "maximum",
+        "boundary", "format", "aggregateLimits",
+    },
+    "PHONE": {
+        "format", "countryCode", "length", "charset", "supportedCountries",
+        "normalization",
+    },
+    "ACCOUNT_NUMBER": {
+        "format", "length", "charset", "checksum", "leadingZero", "separators",
+        "maskingEncryption",
+    },
+    "ACCOUNT_NAME": {
+        "format", "minimumLength", "maximumLength", "charset", "punctuation",
+        "whitespace", "unicode", "matching", "masking",
+    },
+    "CARD": {
+        "format", "length", "charset", "validation", "tokenExpiry",
+        "storageLogging",
+    },
+    "IDENTITY": {
+        "format", "length", "charset", "typeDependency", "dateSemantics",
+        "maskingEncryption",
+    },
+    "INSTITUTION": {
+        "format", "length", "providerMapping", "sourceBinding", "supportScope",
+    },
+    "IDENTIFIER": {
+        "format", "length", "charset", "sourceGeneration", "uniqueness",
+        "duplicateBehavior", "reconciliation",
+    },
+    "ENUM_ROUTING": {
+        "values", "supportScope", "routingParty", "mapping", "routingBehavior",
+        "unknownFallback",
+    },
+    "DATETIME": {
+        "format", "timezone", "valueType", "timestampUnit", "precision",
+        "expiryTimeout",
+    },
+    "TEXT": {
+        "length", "charset", "specialCharacters", "unicode", "newlines",
+        "escaping",
+    },
+    "CALLBACK_SECURITY": {
+        "format", "https", "domainPolicy", "length", "encoding", "algorithm",
+        "canonicalization", "failureHandling",
+    },
 }
+MATERIAL_FIELD_NAMES = (
+    ("AMOUNT", re.compile(r"(?:amount|balance)$")),
+    ("PHONE", re.compile(r"(?:phone|phoneno|mobile|mobileno|msisdn|telephone)$")),
+    ("ACCOUNT_NAME", re.compile(r"(?:accountname|walletname|payeename|beneficiaryname)$")),
+    ("ACCOUNT_NUMBER", re.compile(r"(?:accountno|accountnumber|walletno|walletnumber|iban)$")),
+    ("CARD", re.compile(r"(?:cardno|cardnumber|pan|expirydate|cvv|cvc|cardtoken|cardbin)$")),
+    ("IDENTITY", re.compile(r"(?:idtype|idno|identitynumber|nin|bvn|dateofbirth|dob)$")),
+    ("INSTITUTION", re.compile(r"(?:bankcode|swiftcode|bic|merchantid|institutioncode|institutionid)$")),
+    ("IDENTIFIER", re.compile(r"(?:requestreference|customerreference|orderid|transactionid|channelorderid|channelresponseid|idempotencykey)$")),
+    ("ENUM_ROUTING", re.compile(r"(?:currency|currencycode|country|countrycode|party|businesstype|ability|action|status)$")),
+    ("DATETIME", re.compile(r"(?:timestamp|transactiontime|expirytime|createdat|updatedat|requestedat|datetime)$")),
+    ("TEXT", re.compile(r"(?:narration|remark|description|smscontent)$")),
+    ("CALLBACK_SECURITY", re.compile(r"(?:callbackurl|returnurl|webhookurl|signature|sign)$")),
+)
 CATALOG_MODES = {"INLINE", "RETRIEVAL"}
 INTERFACE_KEYS = {
     "id",
@@ -187,6 +252,11 @@ def validate_contract_row(
         return
     if not row.get(identity_key):
         errors.append(f"{path}.{identity_key} is required")
+    if identity_key == "field":
+        if row.get("type") in (None, "", [], {}):
+            errors.append(f"{path}.type is required")
+        if "required" not in row or row.get("required") in (None, ""):
+            errors.append(f"{path}.required is required")
     if row.get("documented") in (None, "", [], {}):
         errors.append(f"{path}.documented is required")
     validate_source_refs(row.get("documentSource"), f"{path}.documentSource", errors)
@@ -199,6 +269,64 @@ def validate_contract_row(
         errors.append(f"{path}.evidenceIds is required for executed claims")
     if verdict == "DOCUMENT_MISMATCH" and not row.get("correction"):
         errors.append(f"{path}.correction is required for a document mismatch")
+
+
+def inferred_material_category(field_name: Any) -> str | None:
+    if not isinstance(field_name, str):
+        return None
+    normalized = re.sub(r"[^a-z0-9]", "", field_name.lower())
+    for category, pattern in MATERIAL_FIELD_NAMES:
+        if pattern.search(normalized):
+            return category
+    return None
+
+
+def validate_constraint_evidence(
+    field: dict[str, Any], path: str, category: str, errors: list[str]
+) -> None:
+    evidence = field.get("constraintEvidence")
+    if not isinstance(evidence, dict):
+        errors.append(f"{path}.constraintEvidence must be an object")
+        return
+    required_dimensions = REQUIRED_CONSTRAINT_DIMENSIONS[category]
+    missing = sorted(required_dimensions - set(evidence))
+    if missing:
+        errors.append(
+            f"{path}.constraintEvidence missing dimensions: {', '.join(missing)}"
+        )
+    for dimension, claim in evidence.items():
+        claim_path = f"{path}.constraintEvidence.{dimension}"
+        if not isinstance(claim, dict):
+            errors.append(f"{claim_path} must be an object")
+            continue
+        if claim.get("documented") in (None, "", [], {}):
+            errors.append(f"{claim_path}.documented is required")
+        if claim.get("observed") in (None, "", [], {}):
+            errors.append(f"{claim_path}.observed is required")
+        verdict = claim.get("verdict")
+        if verdict not in VERDICTS:
+            errors.append(f"{claim_path}.verdict is invalid")
+        elif verdict in EXECUTED_VERDICTS and not claim.get("evidenceIds"):
+            errors.append(f"{claim_path}.evidenceIds is required for executed claims")
+        elif verdict in {"BLOCKED", "NOT_EXECUTED"}:
+            reason = str(claim.get("observed", "")).strip().lower()
+            if reason in {"blocked", "not executed", "阻塞", "未执行"}:
+                errors.append(f"{claim_path}.observed requires a concrete reason")
+    probe_dimensions = field.get("probeDimensions")
+    if not isinstance(probe_dimensions, list):
+        errors.append(f"{path}.probeDimensions must be a list")
+        return
+    for dimension in probe_dimensions:
+        if dimension not in evidence:
+            errors.append(
+                f"{path}.probeDimensions references missing constraint evidence: "
+                f"{dimension}"
+            )
+            continue
+        if evidence[dimension].get("verdict") not in EXECUTED_VERDICTS:
+            errors.append(
+                f"{path}.probeDimensions includes unexecuted dimension: {dimension}"
+            )
 
 
 def validate_data(data: dict[str, Any]) -> list[str]:
@@ -284,12 +412,18 @@ def validate_data(data: dict[str, Any]) -> list[str]:
                 )
             for field_group in ("requestFields", "responseFields"):
                 for field_index, field in enumerate(interface.get(field_group, [])):
+                    field_path = (
+                        f"interfaces[{index}].{field_group}[{field_index}]"
+                    )
                     validate_contract_row(
                         field,
-                        f"interfaces[{index}].{field_group}[{field_index}]",
+                        field_path,
                         "field",
                         errors,
                     )
+                    role_key = "source" if field_group == "requestFields" else "action"
+                    if field.get(role_key) in (None, "", [], {}):
+                        errors.append(f"{field_path}.{role_key} is required")
             for error_index, error_code in enumerate(interface.get("errorCodes", [])):
                 validate_contract_row(
                     error_code,
@@ -298,31 +432,35 @@ def validate_data(data: dict[str, Any]) -> list[str]:
                     errors,
                 )
             for field_index, field in enumerate(interface.get("requestFields", [])):
-                category = field.get("criticalFieldCategory")
-                if category is None:
-                    continue
-                if category not in FINANCIAL_FIELD_CATEGORIES:
+                field_path = f"interfaces[{index}].requestFields[{field_index}]"
+                if "criticalFieldCategory" not in field:
                     errors.append(
-                        f"interfaces[{index}].requestFields[{field_index}] "
+                        f"{field_path}.criticalFieldCategory is required; use null "
+                        "only after material-field review"
+                    )
+                    continue
+                category = field.get("criticalFieldCategory")
+                inferred_category = inferred_material_category(field.get("field"))
+                if category is None:
+                    if inferred_category:
+                        errors.append(
+                            f"{field_path}.criticalFieldCategory cannot be null; "
+                            f"field name indicates {inferred_category}"
+                        )
+                    continue
+                if category not in MATERIAL_FIELD_CATEGORIES:
+                    errors.append(
+                        f"{field_path} "
                         "has invalid criticalFieldCategory"
                     )
+                    continue
                 field_name = field.get("field")
                 if not field_name:
                     errors.append(
-                        f"interfaces[{index}].requestFields[{field_index}].field "
+                        f"{field_path}.field "
                         "is required for a critical field"
                     )
-                else:
-                    dimensions = set(field.get("probeDimensions", []))
-                    missing_dimensions = sorted(
-                        REQUIRED_PROBE_DIMENSIONS.get(category, set()) - dimensions
-                    )
-                    if missing_dimensions:
-                        errors.append(
-                            f"interfaces[{index}].requestFields[{field_index}] "
-                            "missing financial probe dimensions: "
-                            f"{', '.join(missing_dimensions)}"
-                        )
+                validate_constraint_evidence(field, field_path, category, errors)
         scenarios = data.get("scenarios", [])
         for index, scenario in enumerate(scenarios):
             if scenario.get("verdict") not in VERDICTS:

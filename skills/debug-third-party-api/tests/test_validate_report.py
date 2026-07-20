@@ -86,6 +86,14 @@ class ProbeCoverageTest(unittest.TestCase):
         self.assertIn("navigator.clipboard?.writeText", template)
         self.assertIn('button.classList.add("copied")', template)
 
+    def test_field_constraints_stay_in_existing_table_cell(self) -> None:
+        template = TEMPLATE.read_text()
+        self.assertIn("row.constraintEvidence", template)
+        self.assertIn('kind === "response" ? "action" : "source"', template)
+        self.assertIn('dataTable(item.requestFields, "request")', template)
+        self.assertIn('dataTable(item.responseFields, "response")', template)
+        self.assertNotIn("constraint-report", template)
+
     def test_client_id_is_treated_as_credential_data(self) -> None:
         data = report_data()
         data["input"]["environment"]["clientId"] = "visible-client-id"
@@ -150,6 +158,8 @@ class ProbeCoverageTest(unittest.TestCase):
         validate_report.validate_contract_row(
             {
                 "field": "amount",
+                "type": "integer",
+                "required": True,
                 "documented": "Integer minor units",
                 "verdict": "NOT_EXECUTED",
             },
@@ -200,6 +210,138 @@ class ProbeCoverageTest(unittest.TestCase):
             "signing.localVerification.code is required as a reusable example",
             errors,
         )
+
+    def test_rejects_material_field_without_classification(self) -> None:
+        data = report_data()
+        data["interfaces"][0]["requestFields"] = [
+            {
+                "field": "customerReference",
+                "type": "string",
+                "required": True,
+                "source": "Caller",
+                "criticalFieldCategory": None,
+                "documented": "Client reference",
+                "documentSource": ["https://docs.example.test/reference"],
+                "observed": "Not executed",
+                "verdict": "NOT_EXECUTED",
+                "evidenceIds": [],
+            }
+        ]
+        errors = validate_report.validate_data(data)
+        self.assertIn(
+            "interfaces[0].requestFields[0].criticalFieldCategory cannot be null; "
+            "field name indicates IDENTIFIER",
+            errors,
+        )
+
+    def test_material_field_requires_dimension_evidence(self) -> None:
+        data = report_data()
+        data["interfaces"][0]["requestFields"] = [
+            {
+                "field": "amount",
+                "type": "integer",
+                "required": True,
+                "source": "Caller",
+                "criticalFieldCategory": "AMOUNT",
+                "probeDimensions": [],
+                "constraintEvidence": {},
+                "documented": "Integer minor units",
+                "documentSource": ["https://docs.example.test/amount"],
+                "observed": "Not executed",
+                "verdict": "NOT_EXECUTED",
+                "evidenceIds": [],
+            }
+        ]
+        errors = validate_report.validate_data(data)
+        self.assertTrue(
+            any("constraintEvidence missing dimensions" in error for error in errors),
+            errors,
+        )
+
+    def test_accepts_explicit_unexecuted_constraint_evidence(self) -> None:
+        data = report_data()
+        constraint_evidence = {
+            dimension: {
+                "documented": "Official documentation is silent.",
+                "observed": "Not executed because no valid field baseline was available.",
+                "verdict": "NOT_EXECUTED",
+                "evidenceIds": [],
+            }
+            for dimension in validate_report.REQUIRED_CONSTRAINT_DIMENSIONS["AMOUNT"]
+        }
+        data["interfaces"][0]["requestFields"] = [
+            {
+                "field": "amount",
+                "type": "integer",
+                "required": True,
+                "source": "Caller",
+                "criticalFieldCategory": "AMOUNT",
+                "probeDimensions": [],
+                "constraintEvidence": constraint_evidence,
+                "documented": "Official documentation is silent.",
+                "documentSource": ["https://docs.example.test/amount"],
+                "observed": "No amount probe was executable.",
+                "verdict": "NOT_EXECUTED",
+                "evidenceIds": [],
+            }
+        ]
+        self.assertEqual(validate_report.validate_data(data), [])
+
+    def test_executed_constraint_dimension_requires_evidence(self) -> None:
+        errors = []
+        validate_report.validate_constraint_evidence(
+            {
+                "probeDimensions": ["format"],
+                "constraintEvidence": {
+                    dimension: {
+                        "documented": "Declared",
+                        "observed": "Observed",
+                        "verdict": "NOT_EXECUTED",
+                        "evidenceIds": [],
+                    }
+                    for dimension in validate_report.REQUIRED_CONSTRAINT_DIMENSIONS[
+                        "PHONE"
+                    ]
+                },
+            },
+            "field",
+            "PHONE",
+            errors,
+        )
+        self.assertIn(
+            "field.probeDimensions includes unexecuted dimension: format",
+            errors,
+        )
+
+    def test_request_source_and_response_action_are_required(self) -> None:
+        data = report_data()
+        data["interfaces"][0]["requestFields"] = [
+            {
+                "field": "memo",
+                "type": "string",
+                "required": False,
+                "criticalFieldCategory": None,
+                "documented": "Optional memo",
+                "documentSource": ["https://docs.example.test/memo"],
+                "observed": "Not executed",
+                "verdict": "NOT_EXECUTED",
+            }
+        ]
+        data["interfaces"][0]["responseFields"] = [
+            {
+                "field": "result",
+                "type": "string",
+                "required": True,
+                "documented": "Result value",
+                "documentSource": ["https://docs.example.test/result"],
+                "observed": "Returned",
+                "verdict": "PASS",
+                "evidenceIds": ["E-SUCCESS-01"],
+            }
+        ]
+        errors = validate_report.validate_data(data)
+        self.assertIn("interfaces[0].requestFields[0].source is required", errors)
+        self.assertIn("interfaces[0].responseFields[0].action is required", errors)
 
 
 if __name__ == "__main__":
