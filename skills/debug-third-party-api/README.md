@@ -31,21 +31,17 @@ https://github.com/AugustusHu/useless-skills/tree/main/skills/debug-third-party-
 
 全局安装对所有项目生效。安装后从下一轮对话开始可用；未出现时重启 Codex。
 
-也可以直接复制目录：
+
 
 ```text
+也可以手动下载当前项目，手动复制到目录中：
+
 本地：<项目根目录>/.agents/skills/debug-third-party-api/
+
 全局：~/.codex/skills/debug-third-party-api/
 ```
 
-你想使用WorkBuddy等其他Agent？skill本身并不绑定环境，把地址扔给Agent自己安装即可。为了效果最佳，推荐 Codex
-
-### 运行条件
-
-- Codex 桌面端、CLI 或 IDE 扩展。
-- Python 3.10+。
-- 读取语雀私有文档时需要 `YUQUE_TOKEN`。
-- 供应商指定 SDK 或密码学算法时需要相应依赖。
+推荐使用 Codex 以发挥最佳效果。也可以安装到WorkBuddy等其它Agent尝试。
 
 ### 发起调试
 
@@ -56,7 +52,7 @@ https://github.com/AugustusHu/useless-skills/tree/main/skills/debug-third-party-
 3. 本次需要调试的接口范围。
 4. 希望验证的业务场景，可选。
 
-假设你将上述信息放入了Debug需求文档中，该文档在本地目录中：
+假设包含上述信息的debug文档已经在本地目录中：
 
 ```text
 /debug-third-party-api @通过弹窗选取<Debug需求文件>
@@ -70,50 +66,23 @@ https://github.com/AugustusHu/useless-skills/tree/main/skills/debug-third-party-
 
 ### 配置语雀 Token
 
-#### macOS：让已安装的 Codex 桌面端读取
-
-如果 Codex 是从访达或 Dock 启动的，可以为当前 macOS 登录会话设置：
+把Token配置在机器的环境变量中即可：YUQUE_TOKEN='<your-token>'
 
 ```bash
+# 参考配置
+
+# 选择一 macOS：让已安装的 Codex 桌面端读取
 launchctl setenv YUQUE_TOKEN '<your-token>'
-```
 
-#### 命令行方式配置
-
-macOS / Linux 当前会话生效：
-
-```bash
-# 添加
-export YUQUE_TOKEN='<your-token>'
-
-# 删除
-unset YUQUE_TOKEN
-```
-
-如果不想每次都配置，可以选择在用户根目录持久化：
-
-```bash
-# 添加
+# 选择二 在用户根目录持久化
 echo "export YUQUE_TOKEN='<your-token>'" >> ~/.zshrc
 source ~/.zshrc
 
-# 删除
-sed -i.bak '/^export YUQUE_TOKEN=/d' ~/.zshrc
-rm ~/.zshrc.bak
-unset YUQUE_TOKEN
-```
-
-默认终端使用 bash 时，将 `~/.zshrc` 换成 `~/.bashrc`。
-
-如何判断你的默认终端
-```bash
-echo $SHELL
-> /bin/zsh
 ```
 
 ## 如何更新
 
-更新本地安装：
+还是让Agent代劳最省力
 
 ```text
 更新当前项目的 debug-third-party-api：
